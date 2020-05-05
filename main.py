@@ -64,8 +64,8 @@ def getdocuments(targeturl):
 
         # At the moment we have the text and link variables. Note that link gets overwritten, so saving operations need to go in the for loop. We need to find out a nice way to save the text and links in the file structure and then actually download them. 
 
-        for link in linklist:
-            getdocuments(link)
+    for link in linklist:
+        getdocuments(link)
 
 def echoscraping(link):
     return 0
