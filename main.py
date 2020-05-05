@@ -1,11 +1,9 @@
 import sys
 
 
-def main(args):
+def main(argv):
     pass
 
 
 if __name__ == "main":
     main(sys.argv)
-
-
