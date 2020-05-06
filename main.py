@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 
+
 def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     return soup
+
 
 def authenticate(targeturl):
     driver = webdriver.Chrome()
@@ -16,6 +18,7 @@ def authenticate(targeturl):
     input("Click enter when on learning resources page")
 
     return driver
+
 
 def linkextractor(bbitemdict, bblistitem, targeturl):
     '''Extracts relevent links from a block of html in blackboard corresponding to an item
@@ -62,7 +65,8 @@ def linkextractor(bbitemdict, bblistitem, targeturl):
 
     return bbitemdict
 
-def copystructure(folder,driver,targeturl):
+
+def copystructure(folder, driver, targeturl):
     '''Recursively copies the structure and links of a blackboard folder
 
     Args:
@@ -98,7 +102,7 @@ def copystructure(folder,driver,targeturl):
         # bblistitem corresponds to the html of one item in a blackboard page. For example, the Week 1 folder, the Workbook item, or the course link that links to edge. It includes the entire box around the link you click.
         # bbitemdict stores the extracted information of bblistitem. It isn't stored as a class because its easier to export this and we are only storing data in it.
         bbitemdict = {
-                "name": bblistitem.find("h3").find("span", style = re.compile("")).text,
+                "name": bblistitem.find("h3").find("span", style=re.compile("")).text,
                 "links": [],
                 "type": bblistitem.img["alt"],
                 "text": bblistitem.find("div", {"class": "vtbegenerated"}),
@@ -107,8 +111,8 @@ def copystructure(folder,driver,targeturl):
 
         bbitemdict = linkextractor(bbitemdict, bblistitem, targeturl)
 
-        contentlist += [bbitemdict]                                                  
-    folder["content"] = [copystructure(x,driver,targeturl) for x in contentlist]     # Stores the contents of the folder under the key contents
+        contentlist += [bbitemdict]
+    folder["content"] = [copystructure(x, driver, targeturl) for x in contentlist]     # Stores the contents of the folder under the key contents
     return folder
 
 
@@ -116,31 +120,34 @@ def downloadechovideo(link):
 
     return 0
 
-def getechovideos():
-    ### SELECT RESOLUTION HERE
+
+def getechovideos(driver):
+    # SELECT RESOLUTION HERE
+    soup = loadpage(driver)
     buttonlist = driver.find_elements_by_xpath('//a[@class=matches(".*screenOption.*")]')
 
     for button in buttonlist:
         button.click()
-        href = soup.find("div", {"class": "right"}).contents[1]["href"] # Find the href on the right hand button
+        href = soup.find("div", {"class": "right"}).contents[1]["href"]  # Find the href on the right hand button
         link = "https://echo360.org.au" + href
-        downloadlink(link)
+        downloadechovideo(link)
         # You can't keep the links separately, because echo generates links dynamically; clicking on options doesn't change the download link
 
-def echoscraping(link):
+
+def echoscraping(link, driver):
     driver.get(link)
     # ADD WAIT HERE
     soup = loadpage(driver)
-    datelist = soup.find_all("span", {"class":"date"})
-    timelist = soup.find_all("span", {"class":"time"})
+    datelist = soup.find_all("span", {"class": "date"})
+    timelist = soup.find_all("span", {"class": "time"})
     datelist = [date.text for date in datelist]
     timelist = [time.text for time in timelist]
 
     for button in driver.find_elements_by_class_name("menu-opener"):
         ActionChains(driver).move_to_element(button).perform()
-        button.click # Click the green play button
+        button.click  # Click the green play button
         # ADD WAIT HERE
-        driver.find_elements_by_xpath("//a[@role='menuitem']")[1].click() # Click the download button
+        driver.find_elements_by_xpath("//a[@role='menuitem']")[1].click()  # Click the download button
         # ADD WAIT HERE
         getechovideos()
         driver.find_element_by_xpath("//a[@class='btn white medium']").click()  # Click the cancel button
@@ -154,7 +161,6 @@ def main(argv):
     data = copystructure(rootfolder, driver, targeturl)
     return data
 
+
 if __name__ == "__main__":
     main(sys.argv)
-
-
