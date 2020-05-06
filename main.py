@@ -2,11 +2,12 @@
 import sys
 import os
 import requests
+import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 
-def loadpage():
+def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     return soup
 
@@ -19,69 +20,91 @@ def authenticate():
 
     input("Click enter when on learning resources page")
 
-    cookies = driver.get_cookies()
-    session = requests.Session()
-    for cookie in cookies:
-        session.cookies.set(cookie['name'], cookie['value'])
+    return driver
 
-def getdocuments(targeturl):
-    driver.get(targeturl)
-    # May need an appropriate wait in here
-    soup = loadpage()
+def getdocuments(folder,driver):
+    targeturl = "https://learn.uq.edu.au"
+    # getdocuments will be called on regular items and such by recursion
+    if folder["type"] != "Content Folder":
+        return folder
 
-    title = soup.find("span", {"id": "pageTitleText"}).contents[1].contents[0]
-    os.mkdir(title)
+    # We are using a list for the directory structure instead of a dict because we can have duplicate names and urls are ugly
+    returnlist = []
+    driver.get(folder["links"][0])
+    # ADD WAIT IN HERE
+    soup = loadpage(driver)
 
-    for bbobject in soup.find("ul", {"id": "content_listContainer"}).contents:
-        objecttype = bboject.img["alt"]
-        folderlist = []
-        courselinklist = []
-        weblinklist = []
-        lecturerecordingslist = []
+    try:                # empty folders
+        contents = [x for x in soup.find("ul", {"id": "content_listContainer"}).contents if x != "\n"]
+    except:
+        contents = []
 
-        if objecttype == "Item":
-            bbfiles = bbobject.find_all("a", href=re.compile("bbc"))
+    for bblistitem in contents:
+        # bblistitem corresponds to the html of one item in a blackboard page. For example, the Week 1 folder, the Workbook item, or the course link that links to edge. It includes the entire box around the link you click.
+
+        bbitemdict = {
+                "name": bblistitem.find("h3").find("span", style = re.compile("")).text,
+                "links": [],
+                "type": bblistitem.img["alt"],
+                "text": bblistitem.find("div", {"class": "vtbegenerated"}),
+                "content": []
+                }
+        # bbitemdict stores the extracted information of bblistitem. It isn't stored as a class because its easier to export this and we are only storing data in it.
+
+        if bbitemdict["type"] == "Item":
+            bbfiles = bblistitem.find_all("a", href=re.compile("bbc"))
             for bbfile in bbfiles:
                 link = targeturl + bbfile["href"]
+                bbitemdict["links"] += [link]
 
-        elif objecttype == "File":
-            bbfile = bbobject.find("a", href=re.compile("bbc"))
-            link = targeturl + bbfile["href"]
+        else:                               # elif isn't used so that bbitemdict["links"] can be assigned [link] uniformly for the rest of the categories
+            if bbitemdict["type"] == "File":
+                href = bblistitem.find("a", href=re.compile("bbc"))["href"]
+                link = targeturl + href
 
-        elif objecttype == "Kaltura Media":
-            href = bbobject.find("div", {"class": "kalturawrapper"}).find("iframe")["src"]
-            link = targeturl + href
+            elif bbitemdict["type"] == "Kaltura Media":
+                href = bblistitem.find("div", {"class": "kalturawrapper"}).find("iframe")["src"]
+                link = targeturl + href
 
-        elif objecttype == "Course Link":
-            link = bbobject.find("a", href=re.compile("http"))["href"]
-            courselinklist += [link]
+            elif bbitemdict["type"] == "Course Link":
+                link = bblistitem.find("a", href=re.compile("http"))["href"]
 
-        elif objecttype == "Web Link":
-            link = bbobject.find("a", href=re.compile("http"))["href"]
-            weblinklist += [link]
+            elif bbitemdict["type"] == "Web Link":
+                link = bblistitem.find("a", href=re.compile("http"))["href"]
 
-        elif objecttype == "Lecture_Recordings":
-            link = bbobject.find("a", href=re.compile("webapp"))["href"]
-            lecturerecordingslist += [link]
+            elif bbitemdict["type"] == "Lecture_Recordings":
+                link = bblistitem.find("a", href=re.compile("webapp"))["href"]
 
-        elif objecttype == "Content Folder":
-            link = targeturl + bbobject.find("a", href=re.compile("webapp"))["href"]
-            folderlist += [link]
+            elif bbitemdict["type"] == "Content Folder":
+                link = targeturl + bblistitem.find("a", href=re.compile("webapp"))["href"]
 
-        else:
-            print("WARNING: UNKNOWN OBJECT TYPE DETECTED", objecttype)
+            else:
+                print("WARNING: UNKNOWN OBJECT TYPE DETECTED", bbitemdict["type"])
 
-        text = bbobject.find("div", {"class": "vtbegenerated"})
+            bbitemdict["links"] += [link]
+        returnlist += [bbitemdict]
+    folder["content"] = [getdocuments(x,driver) for x in returnlist]
+    return folder
 
-        # At the moment we have the text and link variables, and then a bunch of arrays of external links. Note that link gets overwritten, so saving operations need to go in the for loop. We need to find out a nice way to save the text and links in the file structure and then actually download them. 
+def downloadechovideo(link):
 
-    for link in linklist:
-        getdocuments(link)
+    return 0
+
+def getechovideos():
+    ### SELECT RESOLUTION HERE
+    buttonlist = driver.find_elements_by_xpath('//a[@class=matches(".*screenOption.*")]')
+
+    for button in buttonlist:
+        button.click()
+        href = soup.find("div", {"class": "right"}).contents[1]["href"] # Find the href on the right hand button
+        link = "https://echo360.org.au" + href
+        downloadlink(link)
+        # You can't keep the links separately, because echo generates links dynamically; clicking on options doesn't change the download link
 
 def echoscraping(link):
     driver.get(link)
     # ADD WAIT HERE
-    soup = loadpage()
+    soup = loadpage(driver)
     datelist = soup.find_all("span", {"class":"date"})
     timelist = soup.find_all("span", {"class":"time"})
     datelist = [date.text for date in datelist]
@@ -93,21 +116,14 @@ def echoscraping(link):
         # ADD WAIT HERE
         driver.find_elements_by_xpath("//a[@role='menuitem']")[1].click() # Click the download button
         # ADD WAIT HERE
-
-
-        ### SELECT YOUR RESOLUTION AND VIDEO
-
-
-        soup = loadpage()
-        href = soup.find("div", {"class": "right"}).contents[1]["href"] # Find the href on the right hand button
-        link = "https://echo360.org.au" + href
+        getechovideos()
         driver.find_element_by_xpath("//a[@class='btn white medium']").click()  # Click the cancel button
     return 0
 
 def main(argv):
-    authenticate()
-    getdocuments(driver.current_url)
-    pass
+    driver = authenticate()
+    data = getdocuments({"links": [driver.current_url], "type": "Content Folder"}, driver)
+    return data
 
 
 if __name__ == "__main__":
