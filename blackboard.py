@@ -87,7 +87,7 @@ def copystructure(folder, driver, targeturl):
                 "name": bblistitem.find("h3").find("span", style=re.compile("")).text,
                 "links": [],
                 "type": bblistitem.img["alt"],
-                "text": bblistitem.find("div", {"class": "vtbegenerated"}),
+                "text": str(bblistitem.find("div", {"class": "vtbegenerated"})),
                 "content": []
                 }
 

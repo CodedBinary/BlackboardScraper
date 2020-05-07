@@ -5,7 +5,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 def selectvideo(srcoptions):
-    links = [option["contents"][1]["value"] for option in srcoptions]
+    links = [option["contents"][-1]["value"] for option in srcoptions]
     return links
 
 
