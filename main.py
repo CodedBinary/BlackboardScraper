@@ -95,7 +95,7 @@ def copystructure(folder, driver, targeturl):
 
     try:                # empty folders can fuck shit up
         contents = [x for x in soup.find("ul", {"id": "content_listContainer"}).contents if x != "\n"]
-    except:
+    except AttributeError:  # TOM: This way non intended shit that fucks up can be detected.
         contents = []
 
     for bblistitem in contents:
