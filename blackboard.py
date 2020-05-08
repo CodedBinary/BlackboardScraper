@@ -35,10 +35,12 @@ def linkextractor(bbitemdict, bblistitem, targeturl):
             link = bblistitem.find("a", href=re.compile("http"))["href"]
 
         elif bbitemdict["type"] == "Lecture_Recordings":
-            link = bblistitem.find("a", href=re.compile("webapp"))["href"]
+            href = bblistitem.find("a", href=re.compile("webapp"))["href"]
+            link = targeturl + href
 
         elif bbitemdict["type"] == "Content Folder":
-            link = targeturl + bblistitem.find("a", href=re.compile("webapp"))["href"]
+            href = bblistitem.find("a", href=re.compile("webapp"))["href"]
+            link = targeturl + href
 
         else:
             print("WARNING: UNKNOWN OBJECT TYPE DETECTED", bbitemdict["type"])
