@@ -9,11 +9,6 @@ def selectvideo(srcoptions):
     return links
 
 
-def downloadechovideo(link):
-
-    return 0
-
-
 def getechovideos(driver):
     buttonlist = driver.find_elements_by_css_selector('a[class*="screenOption"]')
 
@@ -24,9 +19,10 @@ def getechovideos(driver):
         dropdown = soup.find("div", {"class": "downloadOptions"}).contents
         srcoptions = [{"name": srcoption.find("select")["name"], "contents": [{"value": resoption["value"], "text": resoption.text} for resoption in srcoption.find_all("option")]} for srcoption in dropdown if srcoption != "\n"]
 
-        #links = selectvideo(srcoptions)
-        #downloadechovideo(links)
-        return srcoptions
+        links = selectvideo(srcoptions)
+        session = base.cookietransfer(driver)
+        base.downloadlink(links, session)
+        return 0
 
 
 def echoscraping(link, driver):
@@ -43,11 +39,14 @@ def echoscraping(link, driver):
         button.click()  # Click the green play button
         time.sleep(1)
 
-        downloadbutton = driver.find_elements_by_css_selector("a[role='menuitem']")[1]
-        ActionChains(driver).move_to_element(downloadbutton).perform()
-        downloadbutton.click()
-        time.sleep(1)
+        try:
+            downloadbutton = driver.find_elements_by_css_selector("a[role='menuitem']")[1]
+            ActionChains(driver).move_to_element(downloadbutton).perform()
+            downloadbutton.click()
+            time.sleep(1)
+        except IndexError:
+            pass
 
-        #getechovideos(driver)
+        getechovideos(driver)
         driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
     return 0

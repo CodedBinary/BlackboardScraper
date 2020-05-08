@@ -5,6 +5,7 @@ import time
 import requests
 from selenium import webdriver
 
+import base
 import blackboard
 import echo
 
@@ -17,40 +18,27 @@ def authenticate(targeturl):
     return driver
 
 
-def cookietransfer(driver):
-    cookies = driver.get_cookies()
-    session = requests.Session()
-    for cookie in cookies:
-        session.cookies.set(cookie['name'], cookie['value'])
-    return session
-
-
-def downloadlink(bone, session):
-    myfiles = bone["links"]
-    for myfile in myfiles:
-        download = session.get(myfile)
-        open(bone["name"], 'wb').write(download.content)  # Duplicate names??
-    return 0
-
-
 def downloadskeleton(skeleton, driver):
-    session = cookietransfer(driver)
+    session = base.cookietransfer(driver)
     for bone in skeleton["content"]:
         if bone["type"] in ["File", "Item"]:
             for url in bone["links"]:
-                downloadlink(bone, session)
+                base.downloadlink(bone, session)
 
         elif bone["type"] in ["Kaltura Media", "Web Link", "Course Link"]:
             open(bone["name"], 'w').write(bone["links"][0] + "\n" + bone["text"])
 
         elif bone["type"] == "Lecture_Recordings":
+            os.mkdir(bone["name"])  # Duplicate names???
+            os.chdir(bone["name"])
             echo.echoscraping(bone["links"][0], driver)
+            os.chdir("..")  # OS COMPAT
 
         elif bone["type"] in ["Content Folder"]:
             os.mkdir(bone["name"])  # Duplicate names???
             os.chdir(bone["name"])
             downloadskeleton(bone, driver)
-            os.chdir("..")
+            os.chdir("..")  # OS COMPAT
         else:
             print("Warning: Unknown listitem type detected. Type", bone["type"])
     return 0
