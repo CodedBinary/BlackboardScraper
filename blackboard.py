@@ -2,8 +2,10 @@ import re
 from bs4 import BeautifulSoup
 import base
 
+
 def linkextractor(bbitemdict, bblistitem, targeturl):
     '''Extracts relevent links from a block of html in blackboard corresponding to an item
+
     Args:
     bbitemdict  (dict)  : The dict the items are being extracted into
     bblistitem  (soup)  : The BeautifulSoup object corresponding to the object
@@ -14,7 +16,7 @@ def linkextractor(bbitemdict, bblistitem, targeturl):
     '''
 
     if bbitemdict["type"] == "Item":
-        bbfiles = bblistitem.find_all("a", href=re.compile("bbc"))
+        bbfiles = bblistitem.find_all("a", href=re.compile("bbc"))  # Items may not contain a link to download.
         for bbfile in bbfiles:
             link = targeturl + bbfile["href"]
             bbitemdict["links"] += [link]
@@ -62,9 +64,9 @@ def copystructure(folder, driver, targeturl):
 
     Object Structure:
         name (str)      : The name of the object. Eg Week 1, Midsemester Exam
-        text (html)      : The text below the title as html. ### SHOULD BE CHANGED TO THIS, IS CURRENTLY A BS4 OBJECT ###
-        links (lst)     : A list of links contained in the object
-        type (str)      : The type of object. Eg Course Link, Web Link, Item...
+        text (str)      : The text below the title as a string of the html.
+        links (lst)     : A list of urls contained in the object.
+        type (str)      : The type of object. Eg Course Link, Web Link, Item. These correspond to the pictograms on the left of each object when you visit the blackboard page. To check what each one means, inspect the html of the pictogram and look at the "alt" attribute.
         content (lst)   : A list of objects contained within this object. Only valid for folders.
 
     '''
