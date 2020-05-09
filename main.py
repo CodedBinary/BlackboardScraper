@@ -26,17 +26,20 @@ def downloadskeleton(skeleton, driver):
                 base.downloadlink(bone, session)
 
         elif bone["type"] in ["Kaltura Media", "Web Link", "Course Link"]:
-            open(bone["name"], 'w').write(bone["links"][0] + "\n" + bone["text"])
+            name = base.uniquename(bone["name"])
+            open(name, 'w').write(bone["links"][0] + "\n" + bone["text"])
 
         elif bone["type"] == "Lecture_Recordings":
-            os.mkdir(bone["name"])  # Duplicate names???
-            os.chdir(bone["name"])
+            name = base.uniquename(bone["name"])
+            os.mkdir(name)
+            os.chdir(name)
             echo.echoscraping(bone["links"][0], driver)
             os.chdir("..")  # OS COMPAT
 
         elif bone["type"] in ["Content Folder"]:
-            os.mkdir(bone["name"])  # Duplicate names???
-            os.chdir(bone["name"])
+            name = base.uniquename(bone["name"])
+            os.mkdir(name)
+            os.chdir(name)
             downloadskeleton(bone, driver)
             os.chdir("..")  # OS COMPAT
         else:

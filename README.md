@@ -13,7 +13,7 @@ Ensure you have python (obviously), selenium, and a chromium webdriver.
 Run main.py with a single argument - your university's login page. After inspecting the source to check it won't send me your password, log in on the instance of chrome that opens. Navigate to the learning resources page of your chosing. Click enter in the terminal. By default, this will download the entire course learning resources, copy all links and text, and DOWNLOAD ALL OF THE LECTURES FROM ECHO. If you don't want to use this feature, read details.
 
 # Configuration
-Every download from blackboard is completed by the `downloadlink()` function in base.py. You can configure what items in blackboard you download by editing that function. For instance, if you don't want to download any lectures, wrap the entire contents of the `downloadlink` in an `if bone["type"] = "Lecture_Recordings"`. By default, the files will be named after the text in blackboard of the item. 
+Every download from is completed by the `downloadlink()` and function in base.py. Each download only succeeds if the `downloadok` returns `1`. You can configure what items you download by editing these functions. For instance, if you don't want to download any lectures, make `downloadok` return 0 if `bone["type"] = "Lecture_Recordings"`. By default, the files will be named after the text in blackboard of the item. 
 
 If you want to not traverse into certain folders, edit the `downloadskeleton` function in main.py.
 
@@ -25,9 +25,5 @@ This will open a webdriver which first scrapes the html for the structure and li
 For more details, see the documentation in the code.
 
 # Todo
-- Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
 - Add support for blacklisting entire folders or filetypes. 
-- Add support for naming `file` downloads uniquely
-- Enter echo names and times into the dict
-- Fix file naming system replacing items under the same name
-- File extensions
+- Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
