@@ -21,7 +21,9 @@ def selectvideo(srcoptions):
             links   (lst)   : The url of the video to download in a list
             type    (str)   : The type should always be Lecture_Recordings or an equivalent
     '''
-    links = [{"res": option["contents"][-1]["text"], "links": option["contents"][-1]["value"], "type": "Lecture_Recordings"} for option in srcoptions]
+    links = [{"res": option["contents"][-1]["text"],
+              "links": option["contents"][-1]["value"],
+              "type": "Lecture_Recordings"} for option in srcoptions]
     return links
 
 
@@ -30,8 +32,11 @@ def getechovideos(driver, metadata):
     '''
     soup = base.loadpage(driver)
     screen = soup.find("div", {"class": "downloadOptions"}).contents
-    srcoptions = [{"name": srcoption.find("select")["name"], "contents": [{"value": resoption["value"], "text": resoption.text} for resoption in srcoption.find_all("option")]} for srcoption in screen if srcoption != "\n"]
-
+    srcoptions = [{"name": srcoption.find("select")["name"],
+                   "contents": [{"value": resoption["value"],
+                                 "text": resoption.text} for resoption in srcoption.find_all("option")]}
+                  for srcoption in screen if srcoption != "\n"]
+    # I don't think theres any hope for this list comprehension maybe u guys can screw around with making the split version work
     downloads = selectvideo(srcoptions)
     session = base.cookietransfer(driver)
     for download in downloads:
@@ -52,7 +57,11 @@ def echoscraping(link, driver):
     datelist = [recorddate.text for recorddate in datelist]
     timelist = [recordtime.text for recordtime in timelist]
     namelist = [recordname.find("header", {"class": "header"}).contents[0].text for recordname in namelist]
-    metadata = [{"name": namelist[i], "time": timelist[i], "date": datelist[i]} for i in range(len(datelist))]
+    metadata = [  # I'm pretty sure this isnt the way to format it
+                {"name": namelist[i],
+                 "time": timelist[i],
+                 "date": datelist[i]}
+                for i in range(len(datelist))]
 
     for i in range(len(driver.find_elements_by_class_name("class-row"))):
         row = driver.find_elements_by_class_name("class-row")[i]

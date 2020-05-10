@@ -51,7 +51,9 @@ def main(argv):
     #targeturl = "https://learn.uq.edu.au"
     targeturl = argv[1]
     driver = authenticate(targeturl)
-    rootfolder = {"links": [driver.current_url], "type": "Content Folder", "name": "Learning Resources"}
+    rootfolder = {"links": [driver.current_url], 
+                  "type": "Content Folder", 
+                  "name": "Learning Resources"}
     data = blackboard.copystructure(rootfolder, driver, targeturl)
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
