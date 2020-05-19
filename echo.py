@@ -79,7 +79,7 @@ def echoscraping(link, driver):
             except IndexError:  # I think this is unneeded
                 pass
 
-            #getechovideos(driver, metadata[i])  # We pass the metadata down so getechovideos can submit the download itself.
+            getechovideos(driver, metadata[i])  # We pass the metadata down so getechovideos can submit the download itself.
             driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
         except:  # Sometimes there are no green buttons
             pass
