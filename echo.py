@@ -40,9 +40,7 @@ def getechovideos(driver, metadata):
     downloads = selectvideo(srcoptions)
     session = base.cookietransfer(driver)
     for download in downloads:
-        print(download)
         download.update(metadata)
-        print(download)
         base.downloadlink(download, session)
     return 0
 

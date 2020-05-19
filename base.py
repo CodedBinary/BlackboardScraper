@@ -4,6 +4,18 @@ import time
 import requests
 
 
+def echodateconv(echodate):
+    textdates = echodate.split()
+    months = ["Placeholder", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    date = {
+            "year": textdates[2],
+            "montht": textdates[0],
+            "monthn": months.index(textdates[0]),
+            "date": textdates[1][:-1]
+            }
+    return date
+
+
 def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     return soup
@@ -16,7 +28,8 @@ def getnames(bone, downloads):
         downloads (lst): Contains the requests object obtained by downloading the links
     '''
     if bone["type"] == "Lecture_Recordings":
-        return [bone["date"]+bone["time"]+bone["name"]+bone["res"]]
+        dates = echodateconv(bone["date"])
+        return [str(dates["year"])+str(dates["monthn"])+str(dates["date"])+","+bone["time"]+bone["name"]+bone["res"]+"."+bone["links"][0].split(".")[-1]]
     else:
     #   return [bone["name"] for x in bone["links"]]
         return [x.split("/")[-1] for x in bone["links"]]
@@ -29,7 +42,7 @@ def uniquename(originalname):
 
     j = 2
     while os.path.exists(name):     # Add options for changing this format?
-        name = originalname + str(j)
+        name = originalname.rsplit(".", 1)[0] + "(" + str(j) + ")" + originalname.split(".")[-1]
         j += 1
     return name
 
