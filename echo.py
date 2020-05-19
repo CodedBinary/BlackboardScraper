@@ -67,17 +67,20 @@ def echoscraping(link, driver):
         row = driver.find_elements_by_class_name("class-row")[i]
         button = row.find_element_by_class_name("menu-opener")  # Some echo pages have multiple green buttons per row. We need each iteration of the for loop to correspond to a row so the metadata matches up. Afaik, there can only be one lecture recording button and it always occurs first, so there isn't a for loop for each button.
         ActionChains(driver).move_to_element_with_offset(button, 0, 0).perform()
-        button.click()  # Click the green play button
-        time.sleep(1)
-
         try:
-            downloadbutton = driver.find_elements_by_css_selector("a[role='menuitem']")[1]
-            ActionChains(driver).move_to_element(downloadbutton).perform()
-            downloadbutton.click()
+            button.click()  # Click the green play button
             time.sleep(1)
-        except IndexError:
-            pass
 
-        getechovideos(driver, metadata[i])  # We pass the metadata down so getechovideos can submit the download itself.
-        driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
+            try:
+                downloadbutton = driver.find_elements_by_css_selector("a[role='menuitem']")[1]
+                ActionChains(driver).move_to_element(downloadbutton).perform()
+                downloadbutton.click()
+                time.sleep(1)
+            except IndexError:  # I think this is unneeded
+                pass
+
+            #getechovideos(driver, metadata[i])  # We pass the metadata down so getechovideos can submit the download itself.
+            driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
+        except:  # Sometimes there are no green buttons
+            pass
     return 0

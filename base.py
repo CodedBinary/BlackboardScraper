@@ -29,7 +29,7 @@ def getnames(bone, downloads):
     '''
     if bone["type"] == "Lecture_Recordings":
         dates = echodateconv(bone["date"])
-        return [str(dates["year"])+str(dates["monthn"])+str(dates["date"])+","+bone["time"]+bone["name"]+bone["res"]+"."+bone["links"][0].split(".")[-1]]
+        return [str(dates["year"])+str(dates["monthn"])+str(dates["date"])+","+bone["time"]+","+bone["name"]+bone["res"]+"."+bone["links"][0].split(".")[-1]]
     else:
     #   return [bone["name"] for x in bone["links"]]
         return [x.split("/")[-1] for x in bone["links"]]
