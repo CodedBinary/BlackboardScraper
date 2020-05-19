@@ -48,7 +48,6 @@ def downloadskeleton(skeleton, driver):
 
 
 def main(argv):
-    #targeturl = "https://learn.uq.edu.au"
     targeturl = argv[1]
     driver = authenticate(targeturl)
     rootfolder = {"links": [driver.current_url], 

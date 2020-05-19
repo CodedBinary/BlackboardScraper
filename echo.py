@@ -22,7 +22,7 @@ def selectvideo(srcoptions):
             type    (str)   : The type should always be Lecture_Recordings or an equivalent
     '''
     links = [{"res": option["contents"][-1]["text"],
-              "links": option["contents"][-1]["value"],
+              "links": [option["contents"][-1]["value"]],
               "type": "Lecture_Recordings"} for option in srcoptions]
     return links
 
@@ -40,7 +40,9 @@ def getechovideos(driver, metadata):
     downloads = selectvideo(srcoptions)
     session = base.cookietransfer(driver)
     for download in downloads:
-        download = download.update(metadata)
+        print(download)
+        download.update(metadata)
+        print(download)
         base.downloadlink(download, session)
     return 0
 
