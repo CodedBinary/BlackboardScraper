@@ -6,15 +6,21 @@ import requests
 
 def echodateconv(echodate):
     textdates = echodate.split()
-    months = ["Placeholder", "January", "February", "March", "April", 
-            "May", "June", "July", "August", "September", "October", 
-            "November", "December"]
+    months = ["Placeholder", "January", "February", "March", "April",
+              "May", "June", "July", "August", "September", "October",
+              "November", "December"]
     date = {
-            "year": textdates[2],
+            "year": str(textdates[2]),
             "montht": textdates[0],
-            "monthn": months.index(textdates[0]),
-            "date": textdates[1][:-1]
+            "monthn": str(months.index(textdates[0])),
+            "date": str(textdates[1][:-1])
             }
+
+    if len(date["date"]) < 2:
+        date["date"] = 0 + date["date"]
+
+    if len(date["monthn"]) < 2:
+        date["monthn"] = 0 + date["monthn"]
     return date
 
 
@@ -27,12 +33,12 @@ def getnames(bone, downloads):
     ''' Generates a name for the downloads in a bone. Names need not be unique.
     Args:
         bone     (dict): Has the same keys as shown in blackboard.py
-        downloads (lst): Contains the requests object obtained by downloading 
+        downloads (lst): Contains the requests object obtained by downloading
                          the links
     '''
     if bone["type"] == "Lecture_Recordings":
-        dates = echodateconv(bone["date"])
-        return [str(dates["year"])+str(dates["monthn"])+str(dates["date"])
+        dates = bone["date"]
+        return [dates["year"]+dates["monthn"]+dates["date"]
                 +","+bone["time"]+","+bone["name"]+bone["res"]+"."
                 +bone["links"][0].split(".")[-1]]
     else:
