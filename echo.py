@@ -137,9 +137,9 @@ def echoscraping(link, driver):
     timelist = [recordtime.text for recordtime in timelist]
     namelist = [recordname.find("header", {"class": "header"}).contents[0].text for recordname in namelist]
     metadata = [  # I'm pretty sure this isnt the way to format it
-                {"name": namelist[i],
-                 "time": timelist[i],
-                 "date": datelist[i]}
+                {"name": namelist[i], # lecture title
+                 "time": timelist[i], # time string
+                 "date": datelist[i]} # date strng
                 for i in range(len(datelist))]
 
     for i in range(len(driver.find_elements_by_class_name("class-row"))):
@@ -147,8 +147,8 @@ def echoscraping(link, driver):
             row = driver.find_elements_by_class_name("class-row")[i]
             # Some echo pages have multiple green buttons per row. We need each 
             # iteration of the for loop to correspond to a row so the metadata 
-            # matches up. Afaik, there can only be one lecture recording button and 
-            # it always occurs first, so there isn't a for loop for each button.
+            # matches up. Afaik, there can only be one lecture recording button 
+            # and it always occurs first, so there isn't a for loop for each button.
             button = row.find_element_by_class_name("menu-opener")  
             ActionChains(driver).move_to_element_with_offset(button, 0, 0).perform()
 
@@ -159,9 +159,11 @@ def echoscraping(link, driver):
             ActionChains(driver).move_to_element(downloadbutton).perform()
             downloadbutton.click()
             time.sleep(0.2)
-
-            getechovideos(driver, metadata[i])  # We pass the metadata down so getechovideos can submit the download itself.
-            driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
+            # We pass the metadata down so getechovideos can submit the 
+            # download itself.
+            getechovideos(driver, metadata[i])  
+            # Click the cancel button
+            driver.find_element_by_css_selector("a[class='btn white medium']")
         except Exception as e:
             print("Error: ", e)
             try:
