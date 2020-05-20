@@ -71,10 +71,11 @@ def selectvideo(video):
                 "res": media["contents"][-1]["text"],  # get the higher res
                 "links": [media["contents"][-1]["link"]], # get the higher res
                 "type": "Lecture_Recordings",
-                "name":video["name"],
-                "time":video["time"],
-                "date":video["date"]})
+                "name": video["name"] + " " + media["stream-name"],
+                "time": video["time"],
+                "date": video["date"]})
 
+            print(video["name"] + media["stream-name"])
     return links
 
 def savedownload(downloads):
@@ -107,7 +108,6 @@ def getechovideos(driver, metadata):
 
     session = base.cookietransfer(driver)
     for download in downloads:
-        download.update(metadata)
         download_later.append(download)
         if ("Stream 2" not in download["name"]):
             print("Downloading: ", download["name"])
@@ -163,7 +163,7 @@ def echoscraping(link, driver):
             # download itself.
             getechovideos(driver, metadata[i])  
             # Click the cancel button
-            driver.find_element_by_css_selector("a[class='btn white medium']")
+            driver.find_element_by_css_selector("a[class='btn white medium']").click()
         except Exception as e:
             print("Error: ", e)
             try:
