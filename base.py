@@ -4,26 +4,6 @@ import time
 import requests
 
 
-def echodateconv(echodate):
-    textdates = echodate.split()
-    months = ["Placeholder", "January", "February", "March", "April",
-              "May", "June", "July", "August", "September", "October",
-              "November", "December"]
-    date = {
-            "year": str(textdates[2]),
-            "montht": textdates[0],
-            "monthn": str(months.index(textdates[0])),
-            "date": str(textdates[1][:-1])
-            }
-
-    if len(date["date"]) < 2:
-        date["date"] = 0 + date["date"]
-
-    if len(date["monthn"]) < 2:
-        date["monthn"] = 0 + date["monthn"]
-    return date
-
-
 def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     return soup

@@ -8,6 +8,26 @@ JSON_SAVE_FILE = "download_session_" + str(time.time()) + ".json"
 download_later = []
 
 
+def echodateconv(echodate):
+    textdates = echodate.split()
+    months = ["Placeholder", "January", "February", "March", "April",
+              "May", "June", "July", "August", "September", "October",
+              "November", "December"]
+    date = {
+            "year": str(textdates[2]),
+            "montht": textdates[0],
+            "monthn": str(months.index(textdates[0])),
+            "date": str(textdates[1][:-1])
+            }
+
+    if len(date["date"]) < 2:
+        date["date"] = 0 + date["date"]
+
+    if len(date["monthn"]) < 2:
+        date["monthn"] = 0 + date["monthn"]
+    return date
+
+
 def selectvideo(video):
     '''Used to determine which echo videos are selected for download.
 
@@ -61,7 +81,7 @@ def selectvideo(video):
                                  ],
                      'stream-name': 'audio-files'}
              ],
-    'name': 'Multivariate Calculus & ODEs : Lecture 1 (Stream 1) -Introduction',
+    'name': 'Multivariate Calculus & ODEs : Lecture 1 (Stream 1)-Introduction',
     'time': '10:00am-10:59am'
     }
 
@@ -136,6 +156,24 @@ def download_existing(save_file, driver):
     download_all(load_json(save_file), session)
 
 
+def getmetadata(soup):
+    ''' Returns the video metadata for an echo page
+    '''
+    datelist = soup.find_all("span", {"class": "date"})
+    timelist = soup.find_all("span", {"class": "time"})
+    namelist = soup.find_all("div", {"class": "class-row"})
+    datelist = [echodateconv(recorddate.text) for recorddate in datelist]
+    timelist = [recordtime.text for recordtime in timelist]
+    namelist = [recordname.find("header", {"class": "header"}).contents[0].text
+                for recordname in namelist]
+    metadata = [  # I'm pretty sure this isnt the way to format it
+                {"name": namelist[i],  # lecture title
+                 "time": timelist[i],  # time string
+                 "date": datelist[i]}  # date dict
+                for i in range(len(datelist))]
+    return metadata
+
+
 def echoscraping(link, driver):
     ''' Scrapes the given echo page for links and data.
     '''
@@ -144,29 +182,19 @@ def echoscraping(link, driver):
     driver.get(link)
     time.sleep(2)
     soup = base.loadpage(driver)
-    datelist = soup.find_all("span", {"class": "date"})
-    timelist = soup.find_all("span", {"class": "time"})
-    namelist = soup.find_all("div", {"class": "class-row"})
-    datelist = [base.echodateconv(recorddate.text) for recorddate in datelist]
-    timelist = [recordtime.text for recordtime in timelist]
-    namelist = [recordname.find("header", {"class": "header"}).contents[0].text for recordname in namelist]
-    metadata = [  # I'm pretty sure this isnt the way to format it
-                {"name": namelist[i],  # lecture title
-                 "time": timelist[i],  # time string
-                 "date": datelist[i]}  # date dict
-                for i in range(len(datelist))]
+    metadata = getmetadata(soup)
 
-    for i in range(len(driver.find_elements_by_class_name("class-row"))):
+    rows = driver.find_elements_by_class_name("class-row")
+    for i in range(len(rows)):
         try:
-            row = driver.find_elements_by_class_name("class-row")[i]
+            row = rows[i]
             # Some echo pages have multiple green buttons per row. We need each
             # iteration of the for loop to correspond to a row so the metadata
             # matches up. Afaik, there can only be one actual lecture recording
             # button and it always occurs first, so there isn't a for loop for
             # each button.
             greenbutton = row.find_element_by_class_name("menu-opener")
-            ActionChains(driver).move_to_element_with_offset(greenbutton, 0, 0).perform()
-
+            ActionChains(driver).move_to_element(greenbutton).perform()
             greenbutton.click()  # Click the green play button
             time.sleep(0.4)
 
@@ -174,6 +202,7 @@ def echoscraping(link, driver):
             ActionChains(driver).move_to_element(downloadbutton).perform()
             downloadbutton.click()
             time.sleep(0.2)
+
             # We pass the metadata down so getechovideos can submit the
             # download itself.
             getechovideos(driver, metadata[i])
