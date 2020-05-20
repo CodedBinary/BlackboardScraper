@@ -57,12 +57,12 @@ def copystructure(folder, driver, targeturl):
 
     Args:
     folder  (dict)  : The root folder to copy. Should be initialised with a type, name, and desired link.
-    driver  (lmao)  : The instance of the selenium driver to be used
+    driver  (????)  : The instance of the selenium driver to be used
 
     Return:
     folder  (dict)      : The recursive structure of the folder.
 
-    Object Structure:
+    Folder Structure:
         name (str)      : The name of the object. Eg Week 1, Midsemester Exam
         text (str)      : The text below the title as a string of the html.
         links (lst)     : A list of urls contained in the object.

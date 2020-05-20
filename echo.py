@@ -59,6 +59,13 @@ def selectvideo(video):
             links   (lst)   : The url of the video to download in a list
             type    (str)   : The type should always be Lecture_Recordings or
                               an equivalent
+            date (dict)     : Contains date information
+                year    (str)   : The year, as yyyy
+                montht  (str)   : The month, as a name
+                monthn  (str)   : The month, as mm
+                date    (str)   : The date, as dd
+            time (str)      : The time period as shown in echo
+            name (str)      : The name of the stream
 
    {
 
