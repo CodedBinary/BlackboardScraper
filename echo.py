@@ -12,13 +12,20 @@ from datetime import datetime
 import sys
 import getopt
 
-def selectvideo(video):
-    '''Used to determine which echo videos are selected for download.
+def get_bones_from_video(video):
+    """
+    Get a bone object from every link associated with a lecture recording,
+    and set the appropriate attribute data
 
-    Args:
-    video (dict)
+    @arg a bone dictionary, with an additional "media" attribute containing
+        the media information scraped from the website
+    Text fields values depends on the website, but the structure should
+    mostly stay the same.
+
+    video (dict):
+
         media (lst)   : A list of dictionaries. Each dictionary
-        corresponds to a single screen/stream you can download.
+                        corresponds to a single screen/stream you can download.
             stream-name        (str)   : The name of the source. My university uses
                                   "video-one", "video-two", and "audio" for two
                                   video streams and an audio only one.
@@ -28,38 +35,13 @@ def selectvideo(video):
                 text    (str)   : Literally just the text in the dropdown box.
                 value   (str)   : The url of the download.
 
-        date (dict)   : Contains date information
-            year    (str) : The year, as yyyy
-            montht  (str) : The month, as a name
-            monthn  (str) : The month, as mm
-            date    (str) : The date, as dd
+        date (str)   : Contains date information
         time (str)    : The time period as shown in echo
         name (str)    : The name of the lecture
 
 
-    Return:
-        links       (dict)  : A dict of the videos to download.
-            res     (str)   : The resolution of the video to download
-            links   (lst)   : The url of the video to download in a list
-            type    (str)   : The type should always be Lecture_Recordings or
-                              an equivalent
-            date (dict)     : Contains date information
-                year    (str)   : The year, as yyyy
-                montht  (str)   : The month, as a name
-                monthn  (str)   : The month, as mm
-                date    (str)   : The date, as dd
-            time (str)      : The time period as shown in echo
-            name (str)      : The name of the stream
-
-   {
-    '''
-
-def get_bones_from_video(video):
-    """
-    @arg video
-    Get a bone object from every link associated with a lecture recording, 
-    and set the appropriate attribute data
-
+    Example:
+    {
         'date': 'July 24, 2018',
         'media': [   {   'contents': [   {   'link': 'https://.....mp4',
                                             'text': 'SD 360p - 37.1 MB'},
@@ -81,6 +63,7 @@ def get_bones_from_video(video):
         'name': 'Multivariate Calculus & ODEs : Lecture 1 (Stream 1)-Introduction',
         'time': '10:00am-10:59am'
     }
+    @returns a list of bone dictionaries
 
     """
     bones = []
@@ -125,7 +108,7 @@ def get_echo_videos(driver, metadata):
     '''
     Args:
     driver (???)    : The selenium webdriver
-    metadata (dict) : The metadata for the lecture that is being downloaded
+    metadata (dict) : The metadata for the specific lecture that is being downloaded
 
     Retrieves the echo audio and video links for a given lecture, merges
     metadata from parent function, and downloads file. Requires the driver is
