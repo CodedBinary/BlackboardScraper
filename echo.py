@@ -1,32 +1,16 @@
 import base
+import main
+from Settings import Settings
+
+import copy
+import traceback
 import time
 import json
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.action_chains import ActionChains
-
-JSON_SAVE_FILE = "download_session_" + str(time.time()) + ".json"
-download_later = []
-
-
-def echodateconv(echodate):
-    textdates = echodate.split()
-    months = ["Placeholder", "January", "February", "March", "April",
-              "May", "June", "July", "August", "September", "October",
-              "November", "December"]
-    date = {
-            "year": str(textdates[2]),
-            "montht": textdates[0],
-            "monthn": str(months.index(textdates[0])),
-            "date": str(textdates[1][:-1])
-            }
-
-    if len(date["date"]) < 2:
-        date["date"] = 0 + date["date"]
-
-    if len(date["monthn"]) < 2:
-        date["monthn"] = 0 + date["monthn"]
-    return date
-
+from datetime import datetime
+import sys
+import getopt
 
 def selectvideo(video):
     '''Used to determine which echo videos are selected for download.
@@ -68,65 +52,76 @@ def selectvideo(video):
             name (str)      : The name of the stream
 
    {
-
-   Example:
-    'date': 'July 24, 2018',
-    'media': [   {   'contents': [   {   'link': 'https://.....mp4',
-                                         'text': 'SD 360p - 37.1 MB'},
-                                     {   'link': 'https://.....mp4',
-                                         'text': 'HD 720p - 82.7 MB'}
-                                 ],
-                     'stream-name': 'video-one-files'},
-                 {   'contents': [   {   'link': 'https://.....mp4',
-                                         'text': 'SD 360p - 37.2 MB'},
-                                     {   'link': 'https://.....mp4',
-                                         'text': 'HD 720p - 147.7 MB'}
-                                 ],
-                     'stream-name': 'video-two-files'},
-                 {   'contents': [   {   'link': 'https://.....mp4',
-                                         'text': 'mp3 17022 - 57.9 MB'}
-                                 ],
-                     'stream-name': 'audio-files'}
-             ],
-    'name': 'Multivariate Calculus & ODEs : Lecture 1 (Stream 1)-Introduction',
-    'time': '10:00am-10:59am'
-    }
-
     '''
 
-    # Select on video
-    if ("Set This To Exclude Videos" in video["name"]):
-        print("Skipped:", video["name"])
-        return []
+def get_bones_from_video(video):
+    """
+    @arg video
+    Get a bone object from every link associated with a lecture recording, 
+    and set the appropriate attribute data
 
-    links = []
+        'date': 'July 24, 2018',
+        'media': [   {   'contents': [   {   'link': 'https://.....mp4',
+                                            'text': 'SD 360p - 37.1 MB'},
+                                        {   'link': 'https://.....mp4',
+                                            'text': 'HD 720p - 82.7 MB'}
+                                    ],
+                        'stream-name': 'video-one-files'},
+                    {   'contents': [   {   'link': 'https://.....mp4',
+                                            'text': 'SD 360p - 37.2 MB'},
+                                        {   'link': 'https://.....mp4',
+                                            'text': 'HD 720p - 147.7 MB'}
+                                    ],
+                        'stream-name': 'video-two-files'},
+                    {   'contents': [   {   'link': 'https://.....mp4',
+                                            'text': 'mp3 17022 - 57.9 MB'}
+                                    ],
+                        'stream-name': 'audio-files'}
+                ],
+        'name': 'Multivariate Calculus & ODEs : Lecture 1 (Stream 1)-Introduction',
+        'time': '10:00am-10:59am'
+    }
 
-    # Select Media
+    """
+    bones = []
     for media in video["media"]:
         if 1 == 1:  # Change this to exclude certain downloads
-            links.append({
-                "res": media["contents"][-1]["text"],  # get the higher res
-                "links": [media["contents"][-1]["link"]],  # get the higher res
-                "type": "Lecture_Recordings",
-                "name": video["name"] + " " + media["stream-name"],
-                "time": video["time"],
-                "date": video["date"]})
+            bone = copy.deepcopy(video)
+            bone["type"] = "Lecture_Recordings"
+            del bone["media"]
+            if "attributes" not in bone.keys():
+                bone["attributes"] = {}
 
-            print(video["name"] + media["stream-name"])
-    return links
+            bone["attributes"]["stream-name"]   = media["stream-name"]
 
-
-def savedownload(downloads):
-    with open(JSON_SAVE_FILE, "w") as out:
-        out.write(json.dumps(downloads, indent=4, sort_keys=True))
-
-
-def load_json(filename):
-    with open(filename, "r") as f:
-        return json.loads(f.read())
+            for download in media["contents"]:
+                thisbone                        = copy.deepcopy(bone)
+                thisbone["attributes"]["res"]   = download["text"]
+                thisbone["links"]               = [download["link"]]
+                thisbone["attributes"]["ext"]   = download["link"].split(".")[-1]
+                thisbone["attributes"]["dest"]  = base.get_destinations(thisbone)
+                bones.append(thisbone)
 
 
-def getechovideos(driver, metadata):
+    return bones
+
+def video_matches(bone):
+    """
+    @arg bone: a single bone dict
+    @return : True if the bone should be downloaded, False if otherwise
+    """
+
+    if ("audio" in bone["attributes"]["stream-name"]):
+        return False
+    if ("360p" in bone["attributes"]["res"]):
+        return False
+    # Example:
+    #if ("Stream 2" in bone["name"]):
+    #    return False
+
+    return True
+
+def get_echo_videos(driver, metadata):
     '''
     Args:
     driver (???)    : The selenium webdriver
@@ -145,39 +140,61 @@ def getechovideos(driver, metadata):
                                 for resoption in srcoption.find_all("option")]}
                   for srcoption in screen if srcoption != "\n"]
 
-    video = metadata
+    video = metadata # seems pretty iffy
     video["media"] = srcoptions
-
-    downloads = selectvideo(video)
+    bones = get_bones_from_video(video)
 
     session = base.cookietransfer(driver)
-    for download in downloads:
-        download_later.append(download)
-        print("Downloading: ", download["name"])
-        base.downloadlink(download, session)
-        savedownload(download_later)
-
-
-def download_existing(save_file, driver):
-    session = base.cookietransfer(driver)
-    download_all(load_json(save_file), session)
-
+    for download in bones:
+        if not video_matches(download):
+            print("Skipping: ", ":::".join([download["name"],
+                download["attributes"]["stream-name"],
+                download["attributes"]["res"]]))
+            continue
+        elif Settings.get().dry_run:
+            continue
+        else:
+            print("Downloading: ", download["name"])
+            base.downloadlink(download, session)
+            Settings.get().echo.log_download_json(download)
 
 def getmetadata(soup):
     ''' Returns the video metadata for an echo page
     '''
     datelist = soup.find_all("span", {"class": "date"})
+    datelist = [recorddate.text for recorddate in datelist]
+
     timelist = soup.find_all("span", {"class": "time"})
-    namelist = soup.find_all("div", {"class": "class-row"})
-    datelist = [echodateconv(recorddate.text) for recorddate in datelist]
     timelist = [recordtime.text for recordtime in timelist]
+
+    namelist = soup.find_all("div", {"class": "class-row"})
     namelist = [recordname.find("header", {"class": "header"}).contents[0].text
                 for recordname in namelist]
-    metadata = [  # I'm pretty sure this isnt the way to format it
-                {"name": namelist[i],  # lecture title
-                 "time": timelist[i],  # time string
-                 "date": datelist[i]}  # date dict
-                for i in range(len(datelist))]
+    metadata = []
+
+
+    for i in range(len(datelist)):
+        start_time = timelist[i].split("-")[0]
+        record = {"name": namelist[i],      # lecture title
+                 "time": timelist[i],       # time string
+                 "date": datelist[i],
+                 "attributes": {}}          # attributes specific to the bone type
+        rec_date = datetime.min
+        rec_time = datetime.min
+        try:
+            rec_date = datetime.strptime(datelist[i], Settings.get().echo.parse_date_format)
+        except ValueError as e:
+            print("Error parsing date: ", e)
+            print(datelist[i])
+        try:
+            rec_time = datetime.strptime(start_time, Settings.get().echo.parse_time_format)
+        except ValueError as e:
+            print(start_time)
+            print("Error parsing time: ", e)
+        record["datetime"] = datetime.combine(rec_date.date(), rec_time.time())
+
+        metadata.append(record)
+
     return metadata
 
 
@@ -185,7 +202,6 @@ def echoscraping(link, driver):
     ''' Scrapes the given echo page for links and data.
     '''
     print("Starting Echo Scraper")
-    print("Download information will be saved to the file:", JSON_SAVE_FILE)
     driver.get(link)
     time.sleep(2)
     soup = base.loadpage(driver)
@@ -210,16 +226,40 @@ def echoscraping(link, driver):
             downloadbutton.click()
             time.sleep(0.2)
 
-            # We pass the metadata down so getechovideos can submit the
+            # We pass the metadata down so get_echo_videos can submit the
             # download itself.
-            getechovideos(driver, metadata[i])
+            get_echo_videos(driver, metadata[i])
             # Click the cancel button
             driver.find_element_by_css_selector("a[class='btn white medium']").click()
         except Exception as e:
             print("Error: ", e)
+            traceback.print_exc()
             try:
                 driver.find_element_by_css_selector("a[class='btn white medium']").click()  # Click the cancel button
             except:
                 pass
 
     return 0
+
+if __name__ == "__main__":
+    try:
+        opts, args = Settings.get_opts(sys.argv[1:])
+    except getopt.GetoptError:
+        print("Usage: echo.py -l <login link> -e <echo link>")
+        exit(1)
+
+    if (Settings.get().dry_run):
+        print("DRY RUN: ", Settings.get().dry_run)
+    echo_link = login_link = False
+    for opt, arg in opts:
+        if opt == '-l':
+            login_link = arg
+        if opt == "-e":
+            echo_link = arg
+
+    if not (echo_link and login_link):
+        print("Usage: echo.py -l <login link> -e <echo link>")
+        exit(1)
+
+    driver = main.authenticate(login_link)
+    echoscraping(echo_link, driver)
