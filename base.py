@@ -43,7 +43,7 @@ def uniquename(originalname):
         if ("." not in name):
             name = name + "(1)"
         else :
-            name = name.split(".")[:-1] + "(1)" + "." + name.split(".")[-1]
+            name = ".".join(name.split(".")[:-1]) + "(1)." + name.split(".")[-1]
         i = 2
         while os.path.exists(name):
             substr = f"({i - 1})"

@@ -41,7 +41,7 @@ class Settings:
 
         write_date_format = "%Y-%m-%d (%A)"         
         write_time_format = "%X"                    # locale-specifc default time format 
-        save_file_format = "{format_date} {format_time} {name}.{ext}"
+        save_file_format = "{format_date} {format_time} {stream-name} {name}.{ext}"
 
         def __init__(self):
             self.log_file = "download_session_" + str(time.time()) + ".json"

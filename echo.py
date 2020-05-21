@@ -98,9 +98,6 @@ def video_matches(bone):
         return False
     if ("360p" in bone["attributes"]["res"]):
         return False
-    # Example:
-    #if ("Stream 2" in bone["name"]):
-    #    return False
 
     return True
 
