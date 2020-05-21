@@ -3,7 +3,7 @@ import os
 import time
 import requests
 from datetime import datetime
-from Settings import Settings
+import Settings
 
 
 def loadpage(driver):
@@ -18,17 +18,18 @@ def get_destinations(bone):
         downloads (lst): Contains the requests object obtained by downloading
                          the links
     '''
-    
+
     if bone["type"] == "Lecture_Recordings":
         format_strings = bone
         format_strings.update(bone["attributes"])
-        format_strings["format_date"] = datetime.strftime(bone["datetime"], Settings.get().echo.write_date_format)
-        format_strings["format_time"] = datetime.strftime(bone["datetime"], Settings.get().echo.write_time_format)
+        format_strings["format_date"] = datetime.strftime(bone["datetime"], Settings.echo["write_date_format"])
+        format_strings["format_time"] = datetime.strftime(bone["datetime"], Settings.echo["write_time_format"])
 
-        #return [dates["year"]+dates["monthn"]+dates["date"]+","+bone["time"]+","+bone["name"]+bone["res"]+"."+bone["links"][0].split(".")[-1]]
-        return [Settings.Echo.save_file_format.format(**format_strings)]
+        # return [dates["year"]+dates["monthn"]+dates["date"]+","+bone["time"]+","+bone["name"]+bone["res"]+"."+bone[
+        # "links"][0].split(".")[-1]]
+        return [Settings.echo["save_file_format"].format(**format_strings)]
     else:
-    #   return [bone["name"] for x in bone["links"]]
+        #   return [bone["name"] for x in bone["links"]]
         return [x.split("/")[-1] for x in bone["links"]]
 
 
@@ -42,20 +43,22 @@ def uniquename(originalname):
         # requires the file has an extension
         if ("." not in name):
             name = name + "(1)"
-        else :
+        else:
             name = ".".join(name.split(".")[:-1]) + "(1)." + name.split(".")[-1]
         i = 2
         while os.path.exists(name):
             substr = f"({i - 1})"
             ind = name.rfind(substr)
-            name = name[0:ind] + f"({i})" + name[ind+3:]
+            name = name[0:ind] + f"({i})" + name[ind + 3:]
             i += 1
         return name
     else:
         return name
 
+
 def downloadok(bone, url):
     return 1
+
 
 def downloadlink(bone, session):
     ''' Downloads the links in the bone using the current session.

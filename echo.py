@@ -1,6 +1,6 @@
 import base
 import main
-from Settings import Settings
+import Settings
 
 import copy
 import traceback
@@ -11,6 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from datetime import datetime
 import sys
 import getopt
+
 
 def get_bones_from_video(video):
     """
@@ -75,18 +76,18 @@ def get_bones_from_video(video):
             if "attributes" not in bone.keys():
                 bone["attributes"] = {}
 
-            bone["attributes"]["stream-name"]   = media["stream-name"]
+            bone["attributes"]["stream-name"] = media["stream-name"]
 
             for download in media["contents"]:
-                thisbone                        = copy.deepcopy(bone)
-                thisbone["attributes"]["res"]   = download["text"]
-                thisbone["links"]               = [download["link"]]
-                thisbone["attributes"]["ext"]   = download["link"].split(".")[-1]
-                thisbone["attributes"]["dest"]  = base.get_destinations(thisbone)
+                thisbone = copy.deepcopy(bone)
+                thisbone["attributes"]["res"] = download["text"]
+                thisbone["links"] = [download["link"]]
+                thisbone["attributes"]["ext"] = download["link"].split(".")[-1]
+                thisbone["attributes"]["dest"] = base.get_destinations(thisbone)
                 bones.append(thisbone)
 
-
     return bones
+
 
 def video_matches(bone):
     """
@@ -100,6 +101,7 @@ def video_matches(bone):
         return False
 
     return True
+
 
 def get_echo_videos(driver, metadata):
     '''
@@ -120,7 +122,7 @@ def get_echo_videos(driver, metadata):
                                 for resoption in srcoption.find_all("option")]}
                   for srcoption in screen if srcoption != "\n"]
 
-    video = metadata # seems pretty iffy
+    video = metadata  # seems pretty iffy
     video["media"] = srcoptions
     bones = get_bones_from_video(video)
 
@@ -128,15 +130,17 @@ def get_echo_videos(driver, metadata):
     for download in bones:
         if not video_matches(download):
             print("Skipping: ", ":::".join([download["name"],
-                download["attributes"]["stream-name"],
-                download["attributes"]["res"]]))
+                                            download["attributes"]["stream-name"],
+                                            download["attributes"]["res"]]))
             continue
-        elif Settings.get().dry_run:
+        elif Settings.settings["dry_run"]:
             continue
         else:
             print("Downloading: ", download["name"])
             base.downloadlink(download, session)
-            Settings.get().echo.log_download_json(download)
+
+            Settings.Echo.log_download_json(download)
+
 
 def getmetadata(soup):
     ''' Returns the video metadata for an echo page
@@ -152,22 +156,21 @@ def getmetadata(soup):
                 for recordname in namelist]
     metadata = []
 
-
     for i in range(len(datelist)):
         start_time = timelist[i].split("-")[0]
-        record = {"name": namelist[i],      # lecture title
-                 "time": timelist[i],       # time string
-                 "date": datelist[i],
-                 "attributes": {}}          # attributes specific to the bone type
+        record = {"name": namelist[i],  # lecture title
+                  "time": timelist[i],  # time string
+                  "date": datelist[i],
+                  "attributes": {}}  # attributes specific to the bone type
         rec_date = datetime.min
         rec_time = datetime.min
         try:
-            rec_date = datetime.strptime(datelist[i], Settings.get().echo.parse_date_format)
+            rec_date = datetime.strptime(datelist[i], Settings.echo["parse_date_format"])
         except ValueError as e:
             print("Error parsing date: ", e)
             print(datelist[i])
         try:
-            rec_time = datetime.strptime(start_time, Settings.get().echo.parse_time_format)
+            rec_time = datetime.strptime(start_time, Settings.echo["parse_time_format"])
         except ValueError as e:
             print(start_time)
             print("Error parsing time: ", e)
@@ -221,25 +224,10 @@ def echoscraping(link, driver):
 
     return 0
 
+
 if __name__ == "__main__":
-    try:
-        opts, args = Settings.get_opts(sys.argv[1:])
-    except getopt.GetoptError:
-        print("Usage: echo.py -l <login link> -e <echo link>")
-        exit(1)
+    Settings.Settings.get_opts()
+    Settings.Echo.get_opts()
 
-    if (Settings.get().dry_run):
-        print("DRY RUN: ", Settings.get().dry_run)
-    echo_link = login_link = False
-    for opt, arg in opts:
-        if opt == '-l':
-            login_link = arg
-        if opt == "-e":
-            echo_link = arg
-
-    if not (echo_link and login_link):
-        print("Usage: echo.py -l <login link> -e <echo link>")
-        exit(1)
-
-    driver = main.authenticate(login_link)
-    echoscraping(echo_link, driver)
+    driver = main.authenticate(Settings.echo["login_link"])
+    echoscraping(Settings.echo["echo_link"], driver)
