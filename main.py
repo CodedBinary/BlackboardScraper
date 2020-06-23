@@ -24,6 +24,11 @@ def downloadskeleton(skeleton, driver):
     for bone in skeleton["content"]:
         if bone["type"] in ["File", "Item", "Image"]:
             base.downloadlink(bone, session)
+            try:
+                name = base.uniquename(bone["name"])
+                open(name, 'w').write(bone["text"])
+            except:
+                pass
 
         elif bone["type"] in ["Kaltura Media", "Web Link", "Course Link"]:
             name = base.uniquename(bone["name"])
