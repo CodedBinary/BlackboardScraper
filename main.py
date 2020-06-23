@@ -20,10 +20,10 @@ def authenticate(targeturl):
 
 def downloadskeleton(skeleton, driver):
     session = base.cookietransfer(driver)
+    session.headers['User-Agent'] = 'Mozilla/5.0'
     for bone in skeleton["content"]:
-        if bone["type"] in ["File", "Item"]:
-            for url in bone["links"]:
-                base.downloadlink(bone, session)
+        if bone["type"] in ["File", "Item", "Image"]:
+            base.downloadlink(bone, session)
 
         elif bone["type"] in ["Kaltura Media", "Web Link", "Course Link"]:
             name = base.uniquename(bone["name"])
@@ -33,7 +33,7 @@ def downloadskeleton(skeleton, driver):
             name = base.uniquename(bone["name"])
             os.mkdir(name)
             os.chdir(name)
-            echo.echoscraping(bone["links"][0], driver)
+            #echo.echoscraping(bone["links"][0], driver)
             os.chdir("..")  # OS COMPAT
 
         elif bone["type"] in ["Content Folder"]:
@@ -42,6 +42,7 @@ def downloadskeleton(skeleton, driver):
             os.chdir(name)
             downloadskeleton(bone, driver)
             os.chdir("..")  # OS COMPAT
+
         else:
             print("Warning: Unknown listitem type detected. Type", bone["type"])
     return 0
@@ -50,8 +51,8 @@ def downloadskeleton(skeleton, driver):
 def main(argv):
     targeturl = argv[1]
     driver = authenticate(targeturl)
-    rootfolder = {"links": [driver.current_url], 
-                  "type": "Content Folder", 
+    rootfolder = {"links": [driver.current_url],
+                  "type": "Content Folder",
                   "name": "Learning Resources"}
     data = blackboard.copystructure(rootfolder, driver, targeturl)
     currentTime = str(int(time.time()))

@@ -19,7 +19,9 @@ def linkextractor(bbitemdict, bblistitem, targeturl):
         bbfiles = bblistitem.find_all("a", href=re.compile("bbc"))  # Items may not contain a link to download.
         for bbfile in bbfiles:
             link = targeturl + bbfile["href"]
+            filename = bbfile.text.strip()
             bbitemdict["links"] += [link]
+            bbitemdict["names"] += [filename]
 
     else:                               # elif isn't used so that bbitemdict["links"] can be assigned [link] uniformly for the rest of the categories
         if bbitemdict["type"] == "File":
@@ -43,6 +45,9 @@ def linkextractor(bbitemdict, bblistitem, targeturl):
         elif bbitemdict["type"] == "Content Folder":
             href = bblistitem.find("a", href=re.compile("webapp"))["href"]
             link = targeturl + href
+
+        elif bbitemdict["type"] == "Image":
+            link = bblistitem.find("div", class_="vtbegenerated").find("img")["src"]
 
         else:
             print("WARNING: UNKNOWN OBJECT TYPE DETECTED", bbitemdict["type"])
@@ -89,12 +94,12 @@ def copystructure(folder, driver, targeturl):
         # bbitemdict stores the extracted information of bblistitem. It isn't stored as a class because its easier to export this and we are only storing data in it.
         bbitemdict = {
                 "name": bblistitem.find("h3").find("span", style=re.compile("")).text,
+                "names": [],
                 "links": [],
                 "type": bblistitem.img["alt"],
                 "text": str(bblistitem.find("div", {"class": "vtbegenerated"})),
                 "content": []
                 }
-
         bbitemdict = linkextractor(bbitemdict, bblistitem, targeturl)
 
         contentlist += [bbitemdict]

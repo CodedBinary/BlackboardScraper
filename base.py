@@ -28,6 +28,8 @@ def get_destinations(bone):
         # return [dates["year"]+dates["monthn"]+dates["date"]+","+bone["time"]+","+bone["name"]+bone["res"]+"."+bone[
         # "links"][0].split(".")[-1]]
         return [Settings.echo["save_file_format"].format(**format_strings)]
+    elif bone["type"] == "Item":
+        return bone["names"]
     else:
         #   return [bone["name"] for x in bone["links"]]
         return [x.split("/")[-1] for x in bone["links"]]
@@ -65,7 +67,7 @@ def downloadlink(bone, session):
 
     To see the structure of the bone, check out blackboard.py
     '''
-    downloads = [session.get(url) for url in bone["links"] if downloadok(bone, url) == 1]
+    downloads = [session.get(url, allow_redirects=True) for url in bone["links"] if downloadok(bone, url) == 1]
 
     nameslist = get_destinations(bone)
 
