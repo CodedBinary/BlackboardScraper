@@ -27,3 +27,6 @@ For more details, see the documentation in the code.
 # Todo
 - Add support for blacklisting entire folders or filetypes. 
 - Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
+- Add options for putting items in folders or stand alone
+- Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
+- Cookie pickling
