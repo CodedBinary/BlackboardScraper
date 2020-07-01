@@ -18,7 +18,7 @@ def authenticate(targeturl):
     return driver
 
 
-def downloadskeleton(skeleton, driver):
+def downloadskeleton(skeleton, driver, lectures=True):
     session = base.cookietransfer(driver)
     session.headers['User-Agent'] = 'Mozilla/5.0'
     for bone in skeleton["content"]:
@@ -36,11 +36,12 @@ def downloadskeleton(skeleton, driver):
             open(name, 'w').write(bone["links"][0] + "\n" + bone["text"])
 
         elif bone["type"] == "Lecture_Recordings":
-            name = base.uniquename(bone["name"])
-            os.mkdir(name)
-            os.chdir(name)
-            #echo.echoscraping(bone["links"][0], driver)
-            os.chdir("..")  # OS COMPAT
+            if lectures:
+                name = base.uniquename(bone["name"])
+                os.mkdir(name)
+                os.chdir(name)
+                #echo.echoscraping(bone["links"][0], driver)
+                os.chdir("..")  # OS COMPAT
 
         elif bone["type"] in ["Content Folder"]:
             name = base.uniquename(bone["name"])
@@ -55,6 +56,13 @@ def downloadskeleton(skeleton, driver):
 
 
 def main(argv):
+    # Definitely make this argv[1] but i cbf doing it right now bc i dont
+    # want to reorder args and screw smth up
+    if len(argv) == 2 and argv[2] == "--no-lectures":
+        lectures = False
+    else:
+        lectures = True
+
     targeturl = argv[1]
     driver = authenticate(targeturl)
     rootfolder = {"links": [driver.current_url],
@@ -64,7 +72,7 @@ def main(argv):
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
     os.chdir(currentTime)
-    downloadskeleton(data, driver)
+    downloadskeleton(data, driver, lectures)
     return data
 
 
