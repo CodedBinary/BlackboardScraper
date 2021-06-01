@@ -18,13 +18,13 @@ def authenticate(targeturl):
     return driver
 
 
-def downloadskeleton(skeleton, driver, lectures=False):
+def downloadfolder(folder, driver, lectures=False):
     '''
     Downloads the content in a BlackboardItem folder.
     '''
     session = base.cookietransfer(driver)
     session.headers['User-Agent'] = 'Mozilla/5.0'
-    for blackboarditem in skeleton.content:
+    for blackboarditem in folder.content:
         if blackboarditem.type in ["File", "Item", "Image"]:
             base.downloadlink(blackboarditem, session)
             if blackboarditem.text is not None:
@@ -50,7 +50,7 @@ def downloadskeleton(skeleton, driver, lectures=False):
             name = base.uniquename(blackboarditem.name)
             os.mkdir(name)
             os.chdir(name)
-            downloadskeleton(blackboarditem, driver)
+            downloadfolder(blackboarditem, driver)
             os.chdir("..")
 
         else:
@@ -78,7 +78,7 @@ def main(argv):
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
     os.chdir(currentTime)
-    downloadskeleton(rootfolder, driver, lectures)
+    downloadfolder(rootfolder, driver, lectures)
     return rootfolder
 
 
