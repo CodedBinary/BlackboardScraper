@@ -30,3 +30,4 @@ For more details, see the documentation in the code.
 - Add options for putting items in folders or stand alone
 - Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
 - Cookie pickling
+- Echo download best/worst stream

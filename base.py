@@ -19,14 +19,15 @@ def get_destinations(blackboarditem):
     '''
 
     if blackboarditem.type == "Lecture_Recordings":
-        format_strings = blackboarditem
-        format_strings.update(blackboarditem.attributes)
-        format_strings["format_date"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_date_format"])
-        format_strings["format_time"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_time_format"])
+        #format_strings = blackboarditem
+        #format_strings.update(blackboarditem.attributes)
+        #format_strings["format_date"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_date_format"])
+        #format_strings["format_time"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_time_format"])
 
         # return [dates["year"]+dates["monthn"]+dates["date"]+","+blackboarditem.time+","+blackboarditem.name+blackboarditem.res+"."+blackboarditem[
         # "links"][0].split(".")[-1]]
-        return [Settings.echo["save_file_format"].format(**format_strings)]
+        #return [Settings.echo["save_file_format"].format(**format_strings)]
+        return [str(blackboarditem.date)]
     elif blackboarditem.type == "Item":
         return blackboarditem.names
     else:
