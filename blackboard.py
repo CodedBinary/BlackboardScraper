@@ -5,7 +5,6 @@ import base
 
 class BlackboardItem():
     '''
-    Folder Structure:
         name (str)      : The name of the object. Eg Week 1, Midsemester Exam
         names (lst)     : The names of the downloadable content in an "Item"
         text (str)      : The text below the title as a string of the html.

@@ -12,9 +12,9 @@ def loadpage(driver):
 
 
 def get_destinations(blackboarditem):
-    ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique. 
+    ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique.
     Args:
-        blackboarditem     (BlackboardItem): 
+        blackboarditem     (BlackboardItem):
         downloads (lst): Contains the requests object obtained by downloading the links
     '''
 
@@ -37,7 +37,6 @@ def get_destinations(blackboarditem):
 def uniquename(originalname):
     ''' Generates a name for a file that isn't taken already, given a suggested name.
     '''
-    similar = []
     name = originalname
     if os.path.exists(name):
         # otherwise replace the name(1).extention
