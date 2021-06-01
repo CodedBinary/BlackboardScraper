@@ -18,40 +18,43 @@ def authenticate(targeturl):
     return driver
 
 
-def downloadskeleton(skeleton, driver, lectures=True):
+def downloadskeleton(skeleton, driver, lectures=False):
+    '''
+    Downloads the content in a BlackboardItem folder.
+    '''
     session = base.cookietransfer(driver)
     session.headers['User-Agent'] = 'Mozilla/5.0'
-    for bone in skeleton["content"]:
-        if bone["type"] in ["File", "Item", "Image"]:
-            base.downloadlink(bone, session)
-            if bone["text"] is not None:
+    for blackboarditem in skeleton.content:
+        if blackboarditem.type in ["File", "Item", "Image"]:
+            base.downloadlink(blackboarditem, session)
+            if blackboarditem.text is not None:
                 try:
-                    name = base.uniquename(bone["name"])
-                    open(name, 'w').write(bone["text"])
+                    name = base.uniquename(blackboarditem.name)
+                    open(name, 'w').write(blackboarditem.text)
                 except:
                     pass
 
-        elif bone["type"] in ["Kaltura Media", "Web Link", "Course Link"]:
-            name = base.uniquename(bone["name"])
-            open(name, 'w').write(bone["links"][0] + "\n" + bone["text"])
+        elif blackboarditem.type in ["Kaltura Media", "Web Link", "Course Link"]:
+            name = base.uniquename(blackboarditem.name)
+            open(name, 'w').write(blackboarditem.links[0] + "\n" + blackboarditem.text)
 
-        elif bone["type"] == "Lecture_Recordings":
+        elif blackboarditem.type == "Lecture_Recordings":
             if lectures:
-                name = base.uniquename(bone["name"])
+                name = base.uniquename(blackboarditem.name)
                 os.mkdir(name)
                 os.chdir(name)
-                #echo.echoscraping(bone["links"][0], driver)
-                os.chdir("..")  # OS COMPAT
+                echo.echoscraping(blackboarditem.links[0], driver)
+                os.chdir("..")
 
-        elif bone["type"] in ["Content Folder"]:
-            name = base.uniquename(bone["name"])
+        elif blackboarditem.type in ["Content Folder"]:
+            name = base.uniquename(blackboarditem.name)
             os.mkdir(name)
             os.chdir(name)
-            downloadskeleton(bone, driver)
-            os.chdir("..")  # OS COMPAT
+            downloadskeleton(blackboarditem, driver)
+            os.chdir("..")
 
         else:
-            print("Warning: Unknown listitem type detected. Type", bone["type"])
+            print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
     return 0
 
 
@@ -65,15 +68,18 @@ def main(argv):
 
     targeturl = argv[1]
     driver = authenticate(targeturl)
-    rootfolder = {"links": [driver.current_url],
-                  "type": "Content Folder",
-                  "name": "Learning Resources"}
-    data = blackboard.copystructure(rootfolder, driver, targeturl)
+
+    rootfolder = blackboard.BlackboardItem()
+    rootfolder.links = [driver.current_url]
+    rootfolder.type = "Content Folder"
+    rootfolder.name = "Learning Resources"
+
+    blackboard.copystructure(rootfolder, driver, targeturl)
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
     os.chdir(currentTime)
-    downloadskeleton(data, driver, lectures)
-    return data
+    downloadskeleton(rootfolder, driver, lectures)
+    return rootfolder
 
 
 if __name__ == "__main__":

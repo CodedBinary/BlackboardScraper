@@ -11,32 +11,31 @@ def loadpage(driver):
     return soup
 
 
-def get_destinations(bone):
-    ''' Generates a name for the downloads in a bone. Names need not be unique.
+def get_destinations(blackboarditem):
+    ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique. 
     Args:
-        bone     (dict): Has the same keys as shown in blackboard.py
-        downloads (lst): Contains the requests object obtained by downloading
-                         the links
+        blackboarditem     (BlackboardItem): 
+        downloads (lst): Contains the requests object obtained by downloading the links
     '''
 
-    if bone["type"] == "Lecture_Recordings":
-        format_strings = bone
-        format_strings.update(bone["attributes"])
-        format_strings["format_date"] = datetime.strftime(bone["datetime"], Settings.echo["write_date_format"])
-        format_strings["format_time"] = datetime.strftime(bone["datetime"], Settings.echo["write_time_format"])
+    if blackboarditem.type == "Lecture_Recordings":
+        format_strings = blackboarditem
+        format_strings.update(blackboarditem.attributes)
+        format_strings["format_date"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_date_format"])
+        format_strings["format_time"] = datetime.strftime(blackboarditem.datetime, Settings.echo["write_time_format"])
 
-        # return [dates["year"]+dates["monthn"]+dates["date"]+","+bone["time"]+","+bone["name"]+bone["res"]+"."+bone[
+        # return [dates["year"]+dates["monthn"]+dates["date"]+","+blackboarditem.time+","+blackboarditem.name+blackboarditem.res+"."+blackboarditem[
         # "links"][0].split(".")[-1]]
         return [Settings.echo["save_file_format"].format(**format_strings)]
-    elif bone["type"] == "Item":
-        return bone["names"]
+    elif blackboarditem.type == "Item":
+        return blackboarditem.names
     else:
-        #   return [bone["name"] for x in bone["links"]]
-        return [x.split("/")[-1] for x in bone["links"]]
+        #   return [blackboarditem.name for x in blackboarditem.links]
+        return [x.split("/")[-1] for x in blackboarditem.links]
 
 
 def uniquename(originalname):
-    ''' Generates a unique name for a file, given a suggested name.
+    ''' Generates a name for a file that isn't taken already, given a suggested name.
     '''
     similar = []
     name = originalname
@@ -44,7 +43,7 @@ def uniquename(originalname):
         # otherwise replace the name(1).extention
         # requires the file has an extension
         if ("." not in name):
-            name = name + "(1)"
+            name = name + "(1)"  # Unary counting lets go
         else:
             name = ".".join(name.split(".")[:-1]) + "(1)." + name.split(".")[-1]
         i = 2
@@ -58,18 +57,18 @@ def uniquename(originalname):
         return name
 
 
-def downloadok(bone, url):
+def downloadok(blackboarditem, url):
     return 1
 
 
-def downloadlink(bone, session):
-    ''' Downloads the links in the bone using the current session.
+def downloadlink(blackboarditem, session):
+    ''' Downloads the links in the blackboarditem using the current session.
 
-    To see the structure of the bone, check out blackboard.py
+    To see the structure of the blackboarditem, check out blackboard.py
     '''
-    downloads = [session.get(url, allow_redirects=True) for url in bone["links"] if downloadok(bone, url) == 1]
+    downloads = [session.get(url, allow_redirects=True) for url in blackboarditem.links if downloadok(blackboarditem, url) == 1]
 
-    nameslist = get_destinations(bone)
+    nameslist = get_destinations(blackboarditem)
 
     for i in range(len(downloads)):
         name = uniquename(nameslist[i])
