@@ -58,7 +58,7 @@ def downloadskeleton(skeleton, driver, lectures=True):
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
     # want to reorder args and screw smth up
-    if len(argv) == 2 and argv[2] == "--no-lectures":
+    if len(argv) == 3 and argv[2] == "--no-lectures":
         lectures = False
     else:
         lectures = True
