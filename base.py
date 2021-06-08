@@ -31,7 +31,7 @@ def get_destinations(blackboarditem):
     elif blackboarditem.type == "Item":
         return blackboarditem.names
     elif blackboarditem.type == "File":
-        return blackboarditem.name
+        return [blackboarditem.name]
     else:
         #   return [blackboarditem.name for x in blackboarditem.links]
         return [x.split("/")[-1] for x in blackboarditem.links]
