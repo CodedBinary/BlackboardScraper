@@ -27,7 +27,7 @@ def downloadfolder(folder, driver, lectures=False):
     for blackboarditem in folder.content:
         if blackboarditem.type in ["File", "Item", "Image"]:
             base.downloadlink(blackboarditem, session)
-            if blackboarditem.text is not None:
+            if str(blackboarditem.text) != "None":
                 try:
                     name = base.uniquename(blackboarditem.name)
                     open(name, 'w').write(blackboarditem.text)

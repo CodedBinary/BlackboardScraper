@@ -31,3 +31,4 @@ For more details, see the documentation in the code.
 - Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
 - Cookie pickling
 - Echo download best/worst stream
+- Progress bar
