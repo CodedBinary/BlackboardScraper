@@ -25,7 +25,7 @@ This will open a webdriver which first scrapes the html for the structure and li
 For more details, see the documentation in the code.
 
 # Todo
-- Add support for blacklisting entire folders or filetypes. 
+- Add support for blacklisting entire folders or filetypes. In particular text files
 - Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
 - Add options for putting items in folders or stand alone
 - Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
@@ -36,3 +36,4 @@ For more details, see the documentation in the code.
 - Add documentation for general structure of the program
 - Possible generalisation of program?
 - COMP2048 has Learning Module types
+- Refactor copystructure to make it shorter
