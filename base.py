@@ -30,7 +30,7 @@ def get_destinations(blackboarditem):
         return [str(blackboarditem.date)]
     elif blackboarditem.type == "Item":
         return blackboarditem.names
-    elif blackboarditem.type == "File":
+    elif blackboarditem.type in ["File", "module_downloadable content"]:
         return [blackboarditem.name]
     else:
         #   return [blackboarditem.name for x in blackboarditem.links]

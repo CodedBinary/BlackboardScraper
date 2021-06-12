@@ -20,12 +20,12 @@ def authenticate(targeturl):
 
 def downloadfolder(folder, driver, lectures=False):
     '''
-    Downloads the content in a BlackboardItem folder.
+    Downloads the content in a BlackboardItem's contents. Should be a Content Folder or a Learning Module.
     '''
     session = base.cookietransfer(driver)
     session.headers['User-Agent'] = 'Mozilla/5.0'
     for blackboarditem in folder.content:
-        if blackboarditem.type in ["File", "Item", "Image"]:
+        if blackboarditem.type in ["File", "Item", "Image", "module_treeNode", "module_downloadable content", "module_html page"]:
             base.downloadlink(blackboarditem, session)
             if str(blackboarditem.text) != "None":
                 try:
@@ -46,7 +46,7 @@ def downloadfolder(folder, driver, lectures=False):
                 echo.echoscraping(blackboarditem.links[0], driver)
                 os.chdir("..")
 
-        elif blackboarditem.type in ["Content Folder"]:
+        elif blackboarditem.type in ["Content Folder", "Learning Module"]:
             name = base.uniquename(blackboarditem.name)
             os.mkdir(name)
             os.chdir(name)
