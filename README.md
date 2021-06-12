@@ -35,5 +35,4 @@ For more details, see the documentation in the code.
 - MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
 - Add documentation for general structure of the program
 - Possible generalisation of program?
-- COMP2048 has Learning Module types
 - Refactor copystructure to make it shorter

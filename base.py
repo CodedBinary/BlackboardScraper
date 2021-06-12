@@ -25,7 +25,6 @@ def get_destinations(blackboarditem):
     elif blackboarditem.type in ["File", "module_downloadable content"]:
         return [blackboarditem.name]
     else:
-        #   return [blackboarditem.name for x in blackboarditem.links]
         return [x.split("/")[-1] for x in blackboarditem.links]
 
 
