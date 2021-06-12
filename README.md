@@ -32,3 +32,7 @@ For more details, see the documentation in the code.
 - Cookie pickling
 - Echo download best/worst stream
 - Progress bar
+- MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
+- Add documentation for general structure of the program
+- Possible generalisation of program?
+- COMP2048 has Learning Module types
