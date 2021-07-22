@@ -36,3 +36,4 @@ For more details, see the documentation in the code.
 - Add documentation for general structure of the program
 - Possible generalisation of program?
 - Refactor copystructure to make it shorter
+- Downloading images
