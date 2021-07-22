@@ -53,7 +53,6 @@ class BlackboardItem():
             print("ERROR: This should not occur. Ref 132131")
             print(self.type)
 
-        print(extracted)
         if not extracted:
             print("WARNING: UNKNOWN OBJECT TYPE DETECTED", self.type)
             print("This item will be skipped, and not recorded.")
