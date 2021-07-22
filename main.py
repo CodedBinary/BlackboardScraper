@@ -57,7 +57,6 @@ def downloadfolder(folder, driver, lectures=False):
             print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
     return 0
 
-
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
     # want to reorder args and screw smth up
@@ -74,7 +73,10 @@ def main(argv):
     rootfolder.type = "Content Folder"
     rootfolder.name = "Learning Resources"
 
-    blackboard.copystructure(rootfolder, driver, targeturl)
+    extractors = {"folder": [extractor() for extractor in blackboard.FolderExtractor.__subclasses__()],
+                  "link": [extractor() for extractor in blackboard.LinkExtractor.__subclasses__()]}
+
+    rootfolder.copystructure(driver, targeturl, extractors)
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
     os.chdir(currentTime)
