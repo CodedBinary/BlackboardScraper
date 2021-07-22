@@ -33,7 +33,5 @@ For more details, see the documentation in the code.
 - Echo download best/worst stream
 - Progress bar
 - MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
-- Add documentation for general structure of the program
-- Possible generalisation of program?
-- Refactor copystructure to make it shorter
 - Downloading images
+- Duplication of code in BlackboardItem

@@ -1,6 +1,7 @@
 import base
 import main
 import Settings
+import os
 
 import traceback
 import time
@@ -11,6 +12,7 @@ from datetime import datetime
 # import sys
 # import getopt
 
+from blackboard import Downloader
 
 class Video():
     def __init__(self):
@@ -225,6 +227,17 @@ def echoscraping(link, driver):
                 pass
 
     return 0
+
+class misc(Downloader):
+    def __init__(self):
+        self.provides = ["Lecture_Recordings"]
+
+    def download(self, downloaders, blackboarditem, session, driver):
+        name = base.uniquename(blackboarditem.name)
+        os.mkdir(name)
+        os.chdir(name)
+        echoscraping(blackboarditem.links[0], driver)
+        os.chdir("..")
 
 
 if __name__ == "__main__":

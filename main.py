@@ -2,13 +2,18 @@
 import sys
 import os
 import time
-import requests
 from selenium import webdriver
+import glob
+import importlib.util
 
-import base
 import blackboard
-import echo
 
+# Importing link extractors and folder extractors
+modules = glob.glob('LinkExtractors/*.py') + glob.glob('FolderExtractors/*.py') + glob.glob('Downloaders/*.py')
+for module in modules:
+    spec = importlib.util.spec_from_file_location(module.split("/")[-1].split(".")[0], module)
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
 
 def authenticate(targeturl):
     driver = webdriver.Chrome()
@@ -16,46 +21,6 @@ def authenticate(targeturl):
     input("Click enter when on learning resources page")
 
     return driver
-
-
-def downloadfolder(folder, driver, lectures=False):
-    '''
-    Downloads the content in a BlackboardItem's contents. Should be a Content Folder or a Learning Module.
-    '''
-    session = base.cookietransfer(driver)
-    session.headers['User-Agent'] = 'Mozilla/5.0'
-    for blackboarditem in folder.content:
-        if blackboarditem.type in ["File", "Item", "Image", "module_treeNode", "module_downloadable content", "module_html page"]:
-            base.downloadlink(blackboarditem, session)
-            if str(blackboarditem.text) != "None":
-                try:
-                    name = base.uniquename(blackboarditem.name)
-                    open(name, 'w').write(blackboarditem.text)
-                except:
-                    pass
-
-        elif blackboarditem.type in ["Kaltura Media", "Web Link", "Course Link"]:
-            name = base.uniquename(blackboarditem.name)
-            open(name, 'w').write(blackboarditem.links[0] + "\n" + blackboarditem.text)
-
-        elif blackboarditem.type == "Lecture_Recordings":
-            if lectures:
-                name = base.uniquename(blackboarditem.name)
-                os.mkdir(name)
-                os.chdir(name)
-                echo.echoscraping(blackboarditem.links[0], driver)
-                os.chdir("..")
-
-        elif blackboarditem.type in ["Content Folder", "Learning Module"]:
-            name = base.uniquename(blackboarditem.name)
-            os.mkdir(name)
-            os.chdir(name)
-            downloadfolder(blackboarditem, driver)
-            os.chdir("..")
-
-        else:
-            print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
-    return 0
 
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
@@ -65,6 +30,10 @@ def main(argv):
     else:
         lectures = False
 
+    extractors = {"folder": [extractor() for extractor in blackboard.FolderExtractor.__subclasses__()],
+                  "link": [extractor() for extractor in blackboard.LinkExtractor.__subclasses__()]}
+    downloaders = [downloader() for downloader in blackboard.Downloader.__subclasses__()]
+
     targeturl = argv[1]
     driver = authenticate(targeturl)
 
@@ -73,14 +42,11 @@ def main(argv):
     rootfolder.type = "Content Folder"
     rootfolder.name = "Learning Resources"
 
-    extractors = {"folder": [extractor() for extractor in blackboard.FolderExtractor.__subclasses__()],
-                  "link": [extractor() for extractor in blackboard.LinkExtractor.__subclasses__()]}
-
     rootfolder.copystructure(driver, targeturl, extractors)
     currentTime = str(int(time.time()))
     os.mkdir(currentTime)
     os.chdir(currentTime)
-    downloadfolder(rootfolder, driver, lectures)
+    rootfolder.downloadfolder(downloaders, driver)
     return rootfolder
 
 
