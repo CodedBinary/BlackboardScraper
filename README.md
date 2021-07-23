@@ -33,5 +33,4 @@ For more details, see the documentation in the code.
 - Echo download best/worst stream
 - Progress bar
 - MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
-- Duplication of code in BlackboardItem
-- Add global downloading settings
+- Make extractors more uniform and sense. Eg cf extractor contains code that checks the item name, etc, and passes to linkextractor. However no such function exists for folder-type objects - copystructure handles it.

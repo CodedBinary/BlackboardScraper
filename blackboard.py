@@ -38,7 +38,6 @@ class BlackboardItem():
 
         extract, extractable = self.getextractor(extractors["folder"])
         if extractable:
-            print("copystructure", extract, self.name)
             extract(self, driver, targeturl, self.links[0], extractors)
 
     def linkextractor(self, html_bbitem, targeturl, extractors):
@@ -50,7 +49,6 @@ class BlackboardItem():
         '''
 
         extract, extracted = self.getextractor(extractors["link"])
-        print("linkextractor", extract, self.name)
         extract(self, html_bbitem, targeturl)
 
         if self.type in ["module_treeNode", "module_html page", "module_downloadable content"]:
@@ -72,7 +70,6 @@ class BlackboardItem():
         for blackboarditem in self.content:
             downloaded = False
             download, downloaded = blackboarditem.getextractor(downloaders)
-            print("downloadfolder", download, self.name)
             download(downloaders, blackboarditem, session, driver)
             if not downloaded:
                 print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
