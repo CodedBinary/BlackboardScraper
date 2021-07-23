@@ -66,7 +66,7 @@ class BlackboardItem():
         for blackboarditem in self.content:
             downloaded = False
             for downloader in downloaders:
-                if blackboarditem.type in downloader.provides and blackboarditem.type != "Lecture_Recordings":
+                if blackboarditem.type in downloader.provides:
                     downloader.download(downloaders, blackboarditem, session, driver)
                     downloaded = True
                     break
