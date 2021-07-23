@@ -233,7 +233,7 @@ class lectures(Downloader):
         self.provides = ["Lecture_Recordings"]
 
     def download(self, downloaders, blackboarditem, session, driver):
-        if Settings.echo["download"]:
+        if Settings.settings["download_lectures"]:
             name = base.uniquename(blackboarditem.name)
             os.mkdir(name)
             os.chdir(name)
