@@ -233,11 +233,12 @@ class misc(Downloader):
         self.provides = ["Lecture_Recordings"]
 
     def download(self, downloaders, blackboarditem, session, driver):
-        name = base.uniquename(blackboarditem.name)
-        os.mkdir(name)
-        os.chdir(name)
-        echoscraping(blackboarditem.links[0], driver)
-        os.chdir("..")
+        if Settings.echo["download"]:
+            name = base.uniquename(blackboarditem.name)
+            os.mkdir(name)
+            os.chdir(name)
+            echoscraping(blackboarditem.links[0], driver)
+            os.chdir("..")
 
 
 if __name__ == "__main__":

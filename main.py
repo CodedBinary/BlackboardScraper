@@ -5,6 +5,7 @@ import time
 from selenium import webdriver
 import glob
 import importlib.util
+import Settings
 
 import blackboard
 
@@ -25,10 +26,8 @@ def authenticate(targeturl):
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
     # want to reorder args and screw smth up
-    if len(argv) == 3 and argv[2] == "--lectures":
-        lectures = True
-    else:
-        lectures = False
+    if "--lectures" in argv:
+        Settings.echo["download"] = True
 
     extractors = {"folder": [extractor() for extractor in blackboard.FolderExtractor.__subclasses__()],
                   "link": [extractor() for extractor in blackboard.LinkExtractor.__subclasses__()]}

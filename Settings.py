@@ -10,6 +10,7 @@ global_defaults = {
 }
 
 echo_defaults = {
+    "download": False,
     "parse_date_format": "%B %d, %Y",  # July 24, 2018
     "parse_time_format": "%I:%M%p",  # 10:00am
     "write_date_format": "%Y-%m-%d (%A)",
