@@ -6,7 +6,7 @@ class foldertype(Downloader):
     def __init__(self):
         self.provides = ["Content Folder", "Learning Module"]
 
-    def download(self, downloaders, blackboarditem, session, driver):
+    def extract(self, downloaders, blackboarditem, session, driver):
         name = base.uniquename(blackboarditem.name)
         os.mkdir(name)
         os.chdir(name)

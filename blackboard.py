@@ -17,6 +17,13 @@ class BlackboardItem():
         self.type = ""
         self.content = []
 
+    def getextractor(self, extractors):
+        for extractor in extractors:
+            if self.type in extractor.provides:
+                return (extractor.extract, True)
+
+        return (lambda *args: 0, False)
+
     def copystructure(self, driver, targeturl, extractors):
         '''Recursively copies the structure and links of a blackboard folder. The blackboard folder is specified with self.links[0]
 
@@ -29,10 +36,10 @@ class BlackboardItem():
         if self.type not in [y for x in extractors["folder"]+extractors["link"] for y in x.provides]:
             print("ERROR: TYPE NOT RECOGNISED")
 
-        for folderextractor in extractors["folder"]:
-            if self.type in folderextractor.provides:
-                folderextractor.extract(self, driver, targeturl, self.links[0], extractors)
-                break
+        extract, extractable = self.getextractor(extractors["folder"])
+        if extractable:
+            print("copystructure", extract, self.name)
+            extract(self, driver, targeturl, self.links[0], extractors)
 
     def linkextractor(self, html_bbitem, targeturl, extractors):
         '''Extracts relevent links from a block of html in blackboard in to a blackboarditem
@@ -41,12 +48,10 @@ class BlackboardItem():
         html_bbitem  (soup)  : The BeautifulSoup object corresponding to the object
         targeturl   (str)   : The domain of the blackboard site. Used to prepend to hrefs.
         '''
-        extracted = False
-        for extractor in extractors["link"]:
-            if self.type in extractor.provides:
-                extractor.extract(self, html_bbitem, targeturl)
-                extracted = True
-                break
+
+        extract, extracted = self.getextractor(extractors["link"])
+        print("linkextractor", extract, self.name)
+        extract(self, html_bbitem, targeturl)
 
         if self.type in ["module_treeNode", "module_html page", "module_downloadable content"]:
             # ONLY FOR DOCUMENTATION
@@ -63,13 +68,12 @@ class BlackboardItem():
         '''
         session = base.cookietransfer(driver)
         session.headers['User-Agent'] = 'Mozilla/5.0'
+
         for blackboarditem in self.content:
             downloaded = False
-            for downloader in downloaders:
-                if blackboarditem.type in downloader.provides:
-                    downloader.download(downloaders, blackboarditem, session, driver)
-                    downloaded = True
-                    break
+            download, downloaded = blackboarditem.getextractor(downloaders)
+            print("downloadfolder", download, self.name)
+            download(downloaders, blackboarditem, session, driver)
             if not downloaded:
                 print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
 
@@ -95,7 +99,7 @@ class FolderExtractor():
     def __init__(self):
         self.provides = []
 
-    def extract(self, bbitem, driver, targeturl, link):
+    def extract(self, bbitem, driver, targeturl, link, extractors):
         '''
         bbitem (BlackboardItem) : The folder to extract the contents in to
         driver                  : The instance of a selenium driver to use
@@ -111,5 +115,5 @@ class Downloader():
     def __init__(self):
         self.provides = []
 
-    def download(self, downloaders, blackboarditem, session, driver):
+    def extract(self, downloaders, blackboarditem, session, driver):
         pass

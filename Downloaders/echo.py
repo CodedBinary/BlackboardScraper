@@ -231,7 +231,7 @@ class lectures(Downloader):
     def __init__(self):
         self.provides = ["Lecture_Recordings"]
 
-    def download(self, downloaders, blackboarditem, session, driver):
+    def extract(self, downloaders, blackboarditem, session, driver):
         if Settings.settings["download_lectures"]:
             name = base.uniquename(blackboarditem.name)
             os.mkdir(name)

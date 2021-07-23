@@ -5,7 +5,7 @@ class standard(Downloader):
     def __init__(self):
         self.provides = ["File", "Item", "Image", "module_treeNode", "module_downloadable content", "module_html page"]
 
-    def download(self, downloaders, blackboarditem, session, driver):
+    def extract(self, downloaders, blackboarditem, session, driver):
         base.downloadlink(blackboarditem, session)
         if str(blackboarditem.text) != "None":
             try:
