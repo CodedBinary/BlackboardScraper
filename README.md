@@ -35,3 +35,4 @@ For more details, see the documentation in the code.
 - MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
 - Duplication of code in BlackboardItem
 - Add global downloading settings
+- Fix duplicate folder extractors
