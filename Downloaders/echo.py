@@ -1,5 +1,4 @@
 import base
-import main
 import Settings
 import os
 

@@ -2,8 +2,7 @@ from bs4 import BeautifulSoup
 import os
 import time
 import requests
-from datetime import datetime
-import Settings
+from urllib.parse import unquote
 
 
 def loadpage(driver):
@@ -11,15 +10,27 @@ def loadpage(driver):
     return soup
 
 
-def get_destinations(blackboarditem):
+def get_destinations(blackboarditem, session=None):
     ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique.
     Args:
         blackboarditem     (BlackboardItem):
         downloads (lst): Contains the requests object obtained by downloading the links
+        session         : Optional requests session, which can be used to observe the true filename (without downloading the file)
     '''
+    if session is not None:
+        try:
+            names = []
+            for link in blackboarditem.links:
+                response = session.get(link, allow_redirects=False)
+                href = response.headers["Location"]
+                filename = unquote(href.split("/")[-1])
+                names += [filename]
+            return names
+        except KeyError:
+            pass
 
     if blackboarditem.type == "Lecture_Recordings":
-        return [str(blackboarditem.date)]
+        return [blackboarditem.name + str(blackboarditem.date)]
     elif blackboarditem.type == "Item":
         return blackboarditem.names
     elif blackboarditem.type in ["File", "module_downloadable content"]:
@@ -61,7 +72,7 @@ def downloadlink(blackboarditem, session):
     '''
     downloads = [session.get(url, allow_redirects=True) for url in blackboarditem.links if downloadok(blackboarditem, url) == 1]
 
-    nameslist = get_destinations(blackboarditem)
+    nameslist = get_destinations(blackboarditem, session=session)
 
     for i in range(len(downloads)):
         name = uniquename(nameslist[i])
