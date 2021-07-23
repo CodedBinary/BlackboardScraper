@@ -228,7 +228,7 @@ def echoscraping(link, driver):
 
     return 0
 
-class misc(Downloader):
+class lectures(Downloader):
     def __init__(self):
         self.provides = ["Lecture_Recordings"]
 
@@ -239,11 +239,3 @@ class misc(Downloader):
             os.chdir(name)
             echoscraping(blackboarditem.links[0], driver)
             os.chdir("..")
-
-
-if __name__ == "__main__":
-    Settings.Settings.get_opts()
-    Settings.Echo.get_opts()
-
-    driver = main.authenticate(Settings.echo["login_link"])
-    echoscraping(Settings.echo["echo_link"], driver)
