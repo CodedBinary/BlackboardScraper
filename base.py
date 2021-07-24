@@ -3,6 +3,7 @@ import os
 import time
 import requests
 from urllib.parse import unquote
+import Settings
 
 
 def loadpage(driver):
@@ -72,7 +73,11 @@ def uniquename(originalname):
 
 
 def downloadok(blackboarditem, url):
-    return 1
+    filename = blackboarditem.filenames[blackboarditem.links.index(url)]
+    if filename.split(".")[-1] in Settings.settings["exclude_filetype"]:
+        return False
+    else:
+        return True
 
 
 def downloadlink(blackboarditem, session):
@@ -80,14 +85,14 @@ def downloadlink(blackboarditem, session):
 
     To see the structure of the blackboarditem, check out blackboard.py
     '''
-    downloads = [session.get(url, allow_redirects=True) for url in blackboarditem.links if downloadok(blackboarditem, url) == 1]
+    downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else 0 for url in blackboarditem.links]
 
     nameslist = get_destinations(blackboarditem, session=session)
 
     for i in range(len(downloads)):
-        name = uniquename(nameslist[i])
-
-        open(name, 'wb').write(downloads[i].content)
+        if type(downloads[i]) == requests.models.Response:
+            name = uniquename(nameslist[i])
+            open(name, 'wb').write(downloads[i].content)
     time.sleep(1)
     return 0
 

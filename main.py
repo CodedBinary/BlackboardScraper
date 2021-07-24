@@ -34,18 +34,21 @@ def main(argv):
                   "link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
     downloaders = [downloader() for downloader in all_subclasses(blackboard.Downloader)]
 
-    targeturl = argv[1]
-    driver = authenticate(targeturl)
-    session = base.cookietransfer(driver)
-    session.headers['User-Agent'] = 'Mozilla/5.0'
-
     rootfolder = blackboard.BlackboardItem()
-    rootfolder.links = [driver.current_url]
     rootfolder.type = "Content Folder"
     rootfolder.name = "Learning Resources"
+    targeturl = Settings.settings["url"]
 
-    rootfolder.copystructure(driver, session, targeturl, extractors)
-    if Settings.settings["dry_run"] is False:
+    if Settings.settings["dry_run"] <= 2:
+        driver = authenticate(targeturl)
+        session = base.cookietransfer(driver)
+        session.headers['User-Agent'] = 'Mozilla/5.0'
+        rootfolder.links = [driver.current_url]
+
+    if Settings.settings["dry_run"] <= 1:
+        rootfolder.copystructure(driver, session, targeturl, extractors)
+
+    if Settings.settings["dry_run"] == 0:
         currentTime = str(int(time.time()))
         os.mkdir(currentTime)
         os.chdir(currentTime)
