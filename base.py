@@ -14,7 +14,7 @@ def get_filename(link, session):
     '''
     Determines the name of a file that is specified by a blackboard cdn link
     '''
-    response = session.get(link, allow_redirects=False)
+    response = session.head(link, allow_redirects=False)
     if "Location" in response.headers:
         href = response.headers["Location"]
         filename = unquote(href.split("/")[-1])
