@@ -27,10 +27,10 @@ For more details, see the documentation in the code.
 # Todo
 - Add support for blacklisting entire folders or filetypes. In particular text files
 - Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
-- Add options for putting items in folders or stand alone
+- Introduce options for whether to download files or not based on various criteria.
+- Add options for putting items in folders or stand alone for files
 - Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
 - Cookie pickling
 - Echo download best/worst stream
 - Progress bar
-- MATH3405 has lecture recordings stored in Files. Fix required for --no-lectures
-- Make extractors more uniform and sense. Eg cf extractor contains code that checks the item name, etc, and passes to linkextractor. However no such function exists for folder-type objects - copystructure handles it.
+- Determine if lectures stored in folders are lectures
