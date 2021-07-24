@@ -28,10 +28,12 @@ For more details, see the documentation in the code.
 - Add support for blacklisting entire folders or filetypes. In particular text files
 - Introduce options for file naming for the user. In particular, blackboard vs url names, depending on file type, item type, folder location etc.
 - Introduce options for whether to download files or not based on various criteria.
+- Introduce options to change delay times
 - Add options for putting items in folders or stand alone for files
 - Add ability to "refresh" a download (must be able to handle modified files, option to regenerate if files are moved/deleted, or just were downloaded?)
 - Cookie pickling
 - Echo download best/worst stream
-- Progress bar
+- Progress bar/tree
 - Determine if lectures stored in folders are lectures
 - Think hard about whether its worth passing 5 arguments down so low level functions can use them
+- Only wait if download commences
