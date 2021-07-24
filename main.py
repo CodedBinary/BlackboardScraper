@@ -17,6 +17,9 @@ for module in modules:
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
 
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
 def authenticate(targeturl):
     driver = webdriver.Chrome()
     driver.get(targeturl)
@@ -27,9 +30,9 @@ def authenticate(targeturl):
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
     # want to reorder args and screw smth up
-    extractors = {"folder": [extractor() for extractor in blackboard.FolderExtractor.__subclasses__()],
-                  "link": [extractor() for extractor in blackboard.LinkExtractor.__subclasses__()]}
-    downloaders = [downloader() for downloader in blackboard.Downloader.__subclasses__()]
+    extractors = {"folder": [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)],
+                  "link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
+    downloaders = [downloader() for downloader in all_subclasses(blackboard.Downloader)]
 
     targeturl = argv[1]
     driver = authenticate(targeturl)
@@ -42,10 +45,11 @@ def main(argv):
     rootfolder.name = "Learning Resources"
 
     rootfolder.copystructure(driver, session, targeturl, extractors)
-    # currentTime = str(int(time.time()))
-    # os.mkdir(currentTime)
-    # os.chdir(currentTime)
-    # rootfolder.downloadfolder(session, downloaders, driver)
+    if Settings.settings["dry_run"] is False:
+        currentTime = str(int(time.time()))
+        os.mkdir(currentTime)
+        os.chdir(currentTime)
+        rootfolder.downloadfolder(session, downloaders, driver)
     return rootfolder
 
 
