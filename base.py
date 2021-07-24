@@ -11,10 +11,16 @@ def loadpage(driver):
 
 
 def get_filename(link, session):
+    '''
+    Determines the name of a file that is specified by a blackboard cdn link
+    '''
     response = session.get(link, allow_redirects=False)
-    href = response.headers["Location"]
-    filename = unquote(href.split("/")[-1])
-    return filename
+    if "Location" in response.headers:
+        href = response.headers["Location"]
+        filename = unquote(href.split("/")[-1])
+        return filename
+    else:
+        return ""
 
 def get_destinations(blackboarditem, session=None):
     ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique.
@@ -24,13 +30,10 @@ def get_destinations(blackboarditem, session=None):
         session         : Optional requests session, which can be used to observe the true filename (without downloading the file)
     '''
     if session is not None:
-        try:
-            names = []
-            for link in blackboarditem.links:
-                names += [get_filename(link, session)]
-            return names
-        except KeyError:
-            pass
+        names = []
+        for link in blackboarditem.links:
+            names += [get_filename(link, session)]
+        return names
 
     if blackboarditem.type == "Lecture_Recordings":
         return [blackboarditem.name + str(blackboarditem.date)]
