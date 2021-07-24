@@ -34,3 +34,4 @@ For more details, see the documentation in the code.
 - Echo download best/worst stream
 - Progress bar
 - Determine if lectures stored in folders are lectures
+- Think hard about whether its worth passing 5 arguments down so low level functions can use them
