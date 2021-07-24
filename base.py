@@ -10,6 +10,12 @@ def loadpage(driver):
     return soup
 
 
+def get_filename(link, session):
+    response = session.get(link, allow_redirects=False)
+    href = response.headers["Location"]
+    filename = unquote(href.split("/")[-1])
+    return filename
+
 def get_destinations(blackboarditem, session=None):
     ''' Generates a name for the files in a blackboarditem that could be downloaded. Names need not be unique.
     Args:
@@ -21,10 +27,7 @@ def get_destinations(blackboarditem, session=None):
         try:
             names = []
             for link in blackboarditem.links:
-                response = session.get(link, allow_redirects=False)
-                href = response.headers["Location"]
-                filename = unquote(href.split("/")[-1])
-                names += [filename]
+                names += [get_filename(link, session)]
             return names
         except KeyError:
             pass
