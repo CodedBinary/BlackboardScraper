@@ -10,5 +10,5 @@ class foldertype(Downloader):
         name = base.uniquename(blackboarditem.name)
         os.mkdir(name)
         os.chdir(name)
-        blackboarditem.downloadfolder(downloaders, driver)
+        blackboarditem.downloadfolder(session, downloaders, driver)
         os.chdir("..")
