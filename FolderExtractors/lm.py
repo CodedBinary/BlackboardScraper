@@ -8,7 +8,7 @@ class LMExtractor(FolderExtractor):
     def __init__(self):
         self.provides = ["Learning Module"]
 
-    def deeplinkextractor(self, bbitem, html_bbitem, targeturl, extractors):
+    def deeplinkextractor(self, session, bbitem, html_bbitem, targeturl, extractors):
         '''
         When scraping Learning Modules, accesses each content item, and extracts the links. Differs from linkextractor because linkextractor does not access the link of the item, whereas this does.
 
@@ -24,17 +24,17 @@ class LMExtractor(FolderExtractor):
         # If the contents of the module_treeNode look like a "File":
         if file is not None:
             bbitem.type = "File"
-            bbitem.linkextractor(file, targeturl, extractors)
+            bbitem.linkextractor(session, file, targeturl, extractors)
         elif item is not None:
             bbitem.type = "Item"
-            bbitem.linkextractor(item, targeturl)
+            bbitem.linkextractor(session, item, targeturl, extractors)
         else:
             # Potentially a text file, potentially not.
             bbitem.type = "module_html page"
             content = html_bbitem.find("div", {"id": "containerdiv"})
             bbitem.text = content.text + "\n" + str(content)
 
-    def convertHtmltoItem(self, driver, html_bbitem, targeturl, extractors):
+    def convertHtmltoItem(self, session, driver, folder, html_bbitem, targeturl, extractors):
         '''
         Constructs a BlackboardItem object from the html of an element of a Learning Module
 
@@ -59,7 +59,7 @@ class LMExtractor(FolderExtractor):
         if response.status_code == 200:
             driver.get(url)
             subitem_html = base.loadpage(driver)
-            self.deeplinkextractor(bbitem, subitem_html, targeturl, extractors)
+            self.deeplinkextractor(session, bbitem, subitem_html, targeturl, extractors)
 
         elif response.status_code == 302:
             bbitem.type = "module_downloadable content"
@@ -73,7 +73,7 @@ class LMExtractor(FolderExtractor):
 
         return bbitem
 
-    def extract(self, bbitem, driver, targeturl, link, extractors):
+    def extract(self, bbitem, driver, session, targeturl, link, extractors):
         driver.get(link)
         time.sleep(1)
         soup = base.loadpage(driver)
@@ -86,8 +86,8 @@ class LMExtractor(FolderExtractor):
 
         for html_bbitem in contents:
             # html_bbitem corresponds to the html of one item in a blackboard page. For example, the Week 1 self, the Workbook item, or the course link that links to edge. It includes the entire box around the link you click.
-            child = self.convertHtmlToItem(html_bbitem, targeturl, extractors)
+            child = self.convertHtmlToItem(session, html_bbitem, targeturl, extractors)
             bbitem.content += [child]
 
         for child in bbitem.content:
-            child.copystructure(driver, targeturl, extractors)
+            child.copystructure(driver, session, targeturl, extractors)

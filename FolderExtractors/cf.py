@@ -8,7 +8,7 @@ class CFExtractor(FolderExtractor):
     def __init__(self):
         self.provides = ["Content Folder"]
 
-    def convertHtmlToItem(self, html_bbitem, targeturl, extractors):
+    def convertHtmlToItem(self, session, html_bbitem, targeturl, extractors):
         '''
         Constructs a BlackboardItem object from the html of an element of a Content Folder
 
@@ -23,10 +23,10 @@ class CFExtractor(FolderExtractor):
         bbitem.type = html_bbitem.img["alt"]
         bbitem.text = str(html_bbitem.find("div", {"class": "vtbegenerated"}))
 
-        bbitem.linkextractor(html_bbitem, targeturl, extractors)
+        bbitem.linkextractor(session, html_bbitem, targeturl, extractors)
         return bbitem
 
-    def extract(self, bbitem, driver, targeturl, link, extractors):
+    def extract(self, bbitem, driver, session, targeturl, link, extractors):
         '''
         bbitem (BlackboardItem) : The folder to extract the contents in to
         driver                  : The instance of a selenium driver to use
@@ -45,8 +45,8 @@ class CFExtractor(FolderExtractor):
 
         for html_bbitem in contents:
             # html_bbitem corresponds to the html of one item in a blackboard page. For example, the Week 1 self, the Workbook item, or the course link that links to edge. It includes the entire box around the link you click.
-            child = self.convertHtmlToItem(html_bbitem, targeturl, extractors)
+            child = self.convertHtmlToItem(session, html_bbitem, targeturl, extractors)
             bbitem.content += [child]
 
         for child in bbitem.content:
-            child.copystructure(driver, targeturl, extractors)
+            child.copystructure(driver, session, targeturl, extractors)

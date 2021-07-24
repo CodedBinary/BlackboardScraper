@@ -29,7 +29,11 @@ def get_destinations(blackboarditem, session=None):
         downloads (lst): Contains the requests object obtained by downloading the links
         session         : Optional requests session, which can be used to observe the true filename (without downloading the file)
     '''
-    if session is not None:
+
+    if blackboarditem.filenames != []:
+        return blackboarditem.filenames
+
+    if session is not None and blackboarditem.filenames == []:
         names = []
         for link in blackboarditem.links:
             names += [get_filename(link, session)]

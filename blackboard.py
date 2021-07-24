@@ -4,6 +4,7 @@ class BlackboardItem():
     '''
         name (str)      : The name of the object. Eg Week 1, Midsemester Exam
         names (lst)     : The names of the downloadable content in an "Item"
+        filenames (lst) : The filenames of the downloadable content
         text (str)      : The text below the title as a string of the html.
         links (lst)     : A list of urls contained in the object.
         type (str)      : The type of object. Eg Course Link, Web Link, Item. These correspond to the pictograms on the left of each object when you visit the blackboard page. To check what each one means, inspect the html of the pictogram and look at the "alt" attribute.
@@ -12,6 +13,7 @@ class BlackboardItem():
     def __init__(self):
         self.name = ""
         self.names = []
+        self.filenames = []
         self.text = ""
         self.links = []
         self.type = ""
@@ -24,7 +26,7 @@ class BlackboardItem():
 
         return (lambda *args: 0, False)
 
-    def copystructure(self, driver, targeturl, extractors):
+    def copystructure(self, driver, session, targeturl, extractors):
         '''Recursively copies the structure and links of a blackboard folder. The blackboard folder is specified with self.links[0]
 
         Args:
@@ -38,9 +40,9 @@ class BlackboardItem():
 
         extract, extractable = self.getextractor(extractors["folder"])
         if extractable:
-            extract(self, driver, targeturl, self.links[0], extractors)
+            extract(self, driver, session, targeturl, self.links[0], extractors)
 
-    def linkextractor(self, html_bbitem, targeturl, extractors):
+    def linkextractor(self, session, html_bbitem, targeturl, extractors):
         '''Extracts relevent links from a block of html in blackboard in to a blackboarditem
 
         Args:
@@ -49,7 +51,7 @@ class BlackboardItem():
         '''
 
         extract, extracted = self.getextractor(extractors["link"])
-        extract(self, html_bbitem, targeturl)
+        extract(session, self, html_bbitem, targeturl)
 
         if self.type in ["module_treeNode", "module_html page", "module_downloadable content"]:
             # ONLY FOR DOCUMENTATION
@@ -60,13 +62,10 @@ class BlackboardItem():
             print("WARNING: UNKNOWN OBJECT TYPE DETECTED", self.type)
             print("This item will be skipped, and not recorded.")
 
-    def downloadfolder(self, downloaders, driver, lectures=False):
+    def downloadfolder(self, session, downloaders, driver, lectures=False):
         '''
         Downloads the content in a BlackboardItem's contents. Should be a Content Folder or a Learning Module.
         '''
-        session = base.cookietransfer(driver)
-        session.headers['User-Agent'] = 'Mozilla/5.0'
-
         for blackboarditem in self.content:
             downloaded = False
             download, downloaded = blackboarditem.getextractor(downloaders)
@@ -76,12 +75,12 @@ class BlackboardItem():
 
 class LinkExtractor():
     '''
-    Takes an html block (of a certain type of object) and returns an appropriate link. There should be a LinkExtractor that can handle any type of html that occurs on the blackboard page.
+    Takes an html block (of a certain type of object) and returns an appropriate link. There should be a LinkExtractor that can handle any type of html that occurs on the blackboard page. May also edit the blackboarditem based on information gathered by the link and small requests to the site.
     '''
     def __init__(self):
         self.provides = []
 
-    def extract(self, bbitem, html_bbitem, targeturl):
+    def extract(self, session, bbitem, html_bbitem, targeturl):
         pass
 
 class FolderExtractor():
@@ -96,7 +95,7 @@ class FolderExtractor():
     def __init__(self):
         self.provides = []
 
-    def extract(self, bbitem, driver, targeturl, link, extractors):
+    def extract(self, bbitem, driver, session, targeturl, link, extractors):
         '''
         bbitem (BlackboardItem) : The folder to extract the contents in to
         driver                  : The instance of a selenium driver to use

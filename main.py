@@ -7,6 +7,7 @@ import glob
 import importlib.util
 import Settings
 
+import base
 import blackboard
 
 # Importing link extractors and folder extractors
@@ -32,17 +33,19 @@ def main(argv):
 
     targeturl = argv[1]
     driver = authenticate(targeturl)
+    session = base.cookietransfer(driver)
+    session.headers['User-Agent'] = 'Mozilla/5.0'
 
     rootfolder = blackboard.BlackboardItem()
     rootfolder.links = [driver.current_url]
     rootfolder.type = "Content Folder"
     rootfolder.name = "Learning Resources"
 
-    rootfolder.copystructure(driver, targeturl, extractors)
-    currentTime = str(int(time.time()))
-    os.mkdir(currentTime)
-    os.chdir(currentTime)
-    rootfolder.downloadfolder(downloaders, driver)
+    rootfolder.copystructure(driver, session, targeturl, extractors)
+    # currentTime = str(int(time.time()))
+    # os.mkdir(currentTime)
+    # os.chdir(currentTime)
+    # rootfolder.downloadfolder(session, downloaders, driver)
     return rootfolder
 
 
