@@ -9,7 +9,7 @@ class standard(Downloader):
 
     def extract(self, downloaders, blackboarditem, session, driver):
         base.downloadlink(blackboarditem, session)
-        if str(blackboarditem.text) != "None":
+        if str(blackboarditem.text) != "None" and Settings.settings["write_text_files"]:
             try:
                 name = base.uniquename(blackboarditem.name)
                 open(name, 'w').write(blackboarditem.text)

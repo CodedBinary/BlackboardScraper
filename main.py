@@ -34,6 +34,13 @@ def main(argv):
                   "link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
     downloaders = [downloader() for downloader in all_subclasses(blackboard.Downloader)]
 
+    if Settings.settings["verbosity"] >= 2:
+        print("Extractors: ", extractors)
+        print("Downloaders: ", downloaders)
+
+    if Settings.settings["verbosity"] >= 3:
+        print("Settings: ", Settings.settings)
+
     rootfolder = blackboard.BlackboardItem()
     rootfolder.type = "Content Folder"
     rootfolder.name = "Learning Resources"
