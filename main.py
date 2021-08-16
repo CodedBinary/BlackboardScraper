@@ -41,6 +41,7 @@ def authenticate(targeturl):
     input("Click enter when on learning resources page")
 
     if (settings["session_file"] is not None) and (not loaded):
+        cookies = driver.get_cookies()
         with open("session_cookies", "wb") as cf:
             pickle.dump(cookies, cf)
 
