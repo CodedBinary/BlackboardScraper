@@ -3,8 +3,9 @@ import os
 import time
 import requests
 from urllib.parse import unquote
-import Settings
 
+import Settings
+from Settings import settings
 
 def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -37,7 +38,10 @@ def get_destinations(blackboarditem, session=None):
     if session is not None and blackboarditem.filenames == []:
         names = []
         for link in blackboarditem.links:
-            names += [get_filename(link, session)]
+            try:
+                names += [get_filename(link, session)]
+            except Exception as e: 
+                print(f"Request Error: {e}")
         return names
 
     if blackboarditem.type == "Lecture_Recordings":
@@ -74,7 +78,7 @@ def uniquename(originalname):
 
 def downloadok(blackboarditem, url):
     filename = blackboarditem.filenames[blackboarditem.links.index(url)]
-    if filename.split(".")[-1] in Settings.settings["exclude_filetype"]:
+    if filename.split(".")[-1] in settings["exclude_filetype"]:
         return False
     else:
         return True

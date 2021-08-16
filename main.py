@@ -6,6 +6,7 @@ from selenium import webdriver
 import glob
 import importlib.util
 import Settings
+from Settings import Download
 
 import base
 import blackboard
@@ -39,22 +40,24 @@ def main(argv):
     rootfolder.name = "Learning Resources"
     targeturl = Settings.settings["url"]
 
-    if Settings.settings["dry_run"] <= 2:
+    if Settings.settings["dry_run"] <= Download.AUTH_ONLY:
         driver = authenticate(targeturl)
         session = base.cookietransfer(driver)
         session.headers['User-Agent'] = 'Mozilla/5.0'
         rootfolder.links = [driver.current_url]
 
-    if Settings.settings["dry_run"] <= 1:
+    if Settings.settings["dry_run"] <= Download.COPY_ONLY:
         rootfolder.copystructure(driver, session, targeturl, extractors)
 
-    if Settings.settings["dry_run"] == 0:
+    if Settings.settings["dry_run"] == Download.YES:
         currentTime = str(int(time.time()))
         os.mkdir(currentTime)
         os.chdir(currentTime)
         rootfolder.downloadfolder(session, downloaders, driver)
+
     return rootfolder
 
 
 if __name__ == "__main__":
     main(sys.argv)
+    print("Success.")

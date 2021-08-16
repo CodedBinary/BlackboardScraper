@@ -1,4 +1,5 @@
 import base
+from Settings import Verbosity, settings
 
 class BlackboardItem():
     '''
@@ -35,12 +36,23 @@ class BlackboardItem():
         targeturl (str)         : The url to prepend to any relevant hrefs
         extractors (dict)       : A dict of extractors, with keys "folder", "content", "link", with values each a list of extractors
         '''
+
+        if settings["verbosity"] >= Verbosity.INFO:
+            print(f"Discovering items: {self.name}, {self.names}")
+
         if self.type not in [y for x in extractors["folder"]+extractors["link"] for y in x.provides]:
             print("ERROR: TYPE NOT RECOGNISED")
 
         extract, extractable = self.getextractor(extractors["folder"])
         if extractable:
-            extract(self, driver, session, targeturl, self.links[0], extractors)
+            try:
+                extract(self, driver, session, targeturl, self.links[0], extractors)
+            except Exception as f:
+                if settings["verbosity"] >= Verbosity.ERROR:
+                    print(f"Extraction of {self.name} failed with exception {f}")
+        else:
+            if settings["verbosity"] >= Verbosity.INFO:
+                print(f"Not extractable: {self.name} {self.links}")
 
     def linkextractor(self, session, html_bbitem, targeturl, extractors):
         '''Extracts relevent links from a block of html in blackboard in to a blackboarditem
@@ -66,12 +78,19 @@ class BlackboardItem():
         '''
         Downloads the content in a BlackboardItem's contents. Should be a Content Folder or a Learning Module.
         '''
+
+        if settings["verbosity"] >= Verbosity.INFO:
+            print(f"Entering folder: {self.name}")
+
         for blackboarditem in self.content:
             downloaded = False
             download, downloaded = blackboarditem.getextractor(downloaders)
             download(downloaders, blackboarditem, session, driver)
             if not downloaded:
                 print("Warning: Unknown listitem type detected. Type", blackboarditem.type)
+            else:
+                if settings["verbosity"] >= Verbosity.INFO:
+                    print(f"Downloaded item: {blackboarditem.name}")
 
 class LinkExtractor():
     '''
