@@ -25,13 +25,16 @@ def authenticate(targeturl):
     driver = webdriver.Chrome()
     loaded = False
 
-    if settings["session_file"] is not None:
-        driver.get(targeturl + "/webapps/login/?action=default_login")
-        with open(settings["session_file"], "rb") as cf:
-            cookies = pickle.load(cf)
-        for cookie in cookies:
-            driver.add_cookie(cookie)
-        loaded = True
+    try:
+        if settings["session_file"] is not None:
+            driver.get(targeturl + "/webapps/login/?action=default_login")
+            with open(settings["session_file"], "rb") as cf:
+                cookies = pickle.load(cf)
+            for cookie in cookies:
+                driver.add_cookie(cookie)
+            loaded = True
+    except:
+        pass
 
     driver.get(targeturl)
 
