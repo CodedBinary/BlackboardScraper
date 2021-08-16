@@ -2,6 +2,7 @@ import getopt
 import time
 import json
 import sys
+import cli
 
 global settings
 settings = {
@@ -21,6 +22,9 @@ settings = {
 }
 
 opts, args = getopt.getopt(sys.argv[1:], settings["optstring"], longopts=settings["longopts"])
+
+if not len(args) == 1:
+    cli.exitusage()
 
 settings["url"] = args[0]
 
