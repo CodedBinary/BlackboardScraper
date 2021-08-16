@@ -2,9 +2,28 @@ import getopt
 import time
 import json
 import sys
-import cli
 
 from enum import IntEnum
+
+
+usagetext = """BlackboardScraper https://github.com/CodedBinary/BlackboardScraper
+Usage: main.py <university login page> [options]
+
+   -d                 : Dry run only, do not download content.
+   -v                 : Enable vebose output.
+   --lectures         : Allow downloading lectures from echo
+   --exclude-filetype : do not download files with this extension (not work)
+   """
+
+helptext = """BlackboardScraper https://github.com/CodedBinary/BlackboardScraper
+
+Run main.py with a single argument - your university's login page. After inspecting the source to check it won't send me your password, log in on the instance of chrome that opens. Navigate to the learning resources page of your chosing. Click enter in the terminal. By default, this will download the entire course learning resources, copy all links and text, and DOWNLOAD ALL OF THE LECTURES FROM ECHO. If you don't want to use this feature, read details."""
+
+
+def exitusage():
+    print(usagetext)
+    exit(1)
+
 
 class Download(IntEnum):
     YES = 0
