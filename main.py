@@ -23,17 +23,13 @@ def all_subclasses(cls):
 
 def authenticate(targeturl):
     driver = webdriver.Chrome()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--no-sandbox")
     loaded = False
 
     if settings["session_file"] is not None:
         driver.get(targeturl + "/webapps/login/?action=default_login")
         with open(settings["session_file"], "rb") as cf:
             cookies = pickle.load(cf)
-            print(cookies)
         for cookie in cookies:
-            print(cookie)
             driver.add_cookie(cookie)
         loaded = True
 
