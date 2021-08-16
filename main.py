@@ -22,7 +22,7 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 def authenticate(targeturl):
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(executable_path=r'C:\Users\sash\Documents\chromedriver_win32\chromedriver.exe')
     loaded = False
 
     try:
