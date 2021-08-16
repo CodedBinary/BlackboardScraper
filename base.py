@@ -2,11 +2,9 @@ from bs4 import BeautifulSoup
 import os
 import time
 import requests
-from urllib.parse import unquote
-import pickle
+from urllib.parse import unquote, urlparse
 
-import Settings
-from Settings import settings
+from Settings import settings, Verbosity
 
 def loadpage(driver):
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -34,8 +32,8 @@ def get_destinations(blackboarditem, session=None):
         session         : Optional requests session, which can be used to observe the true filename (without downloading the file)
     '''
 
-    if blackboarditem.filenames != []:
-        return blackboarditem.filenames
+    #if blackboarditem.filenames != []:
+    #    return blackboarditem.filenames
 
     if session is not None and blackboarditem.filenames == []:
         names = []
@@ -53,7 +51,9 @@ def get_destinations(blackboarditem, session=None):
     elif blackboarditem.type in ["File", "module_downloadable content"]:
         return [blackboarditem.name]
     else:
-        return [x.split("/")[-1] for x in blackboarditem.links]
+        if settings["verbosity"] >= Verbosity.INFO:
+            print("Warning: using default filename")
+        return [os.path.basename(urlparse(x).path) for x in blackboarditem.links]
 
 
 def uniquename(originalname):
@@ -91,9 +91,16 @@ def downloadlink(blackboarditem, session):
 
     To see the structure of the blackboarditem, check out blackboard.py
     '''
-    downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else 0 for url in blackboarditem.links]
+    downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else None for url in blackboarditem.links]
 
     nameslist = get_destinations(blackboarditem, session=session)
+    print(blackboarditem.type)
+    print(blackboarditem.names)
+    print(blackboarditem.filenames)
+    print(blackboarditem.links)
+    print(nameslist)
+
+    names = []
 
     for i in range(len(downloads)):
         try:
@@ -102,7 +109,7 @@ def downloadlink(blackboarditem, session):
                 with open(name, 'wb') as f:
                     f.write(downloads[i].content)
         except Exception as e:
-            print(f"Failed to write file {downloads[i]}: {e}")
+            print(f"Failed to write file from {blackboarditem.links[i]}: {e}")
 
     time.sleep(1)
     return 0
