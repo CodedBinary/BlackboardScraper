@@ -15,7 +15,6 @@ def get_filename(link, session):
     '''
     Determines the name of a file that is specified by a blackboard cdn link
     '''
-    print(f"debug: {link}")
     response = session.head(link, allow_redirects=False)
     if "Location" in response.headers:
         href = response.headers["Location"]
@@ -32,15 +31,15 @@ def get_destinations(blackboarditem, session=None):
         session         : Optional requests session, which can be used to observe the true filename (without downloading the file)
     '''
 
-    #if blackboarditem.filenames != []:
-    #    return blackboarditem.filenames
+    if blackboarditem.filenames != []:
+        return blackboarditem.filenames
 
     if session is not None and blackboarditem.filenames == []:
         names = []
         for link in blackboarditem.links:
             try:
                 names += [get_filename(link, session)]
-            except Exception as e: 
+            except Exception as e:
                 print(f"Request Error: {e}")
         return names
 
@@ -94,11 +93,6 @@ def downloadlink(blackboarditem, session):
     downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else None for url in blackboarditem.links]
 
     nameslist = get_destinations(blackboarditem, session=session)
-    print(blackboarditem.type)
-    print(blackboarditem.names)
-    print(blackboarditem.filenames)
-    print(blackboarditem.links)
-    print(nameslist)
 
     names = []
 

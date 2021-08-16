@@ -84,7 +84,7 @@ class BlackboardItem():
             download, downloaded = blackboarditem.getextractor(downloaders)
             download(downloaders, blackboarditem, session, driver)
             if not downloaded:
-                print("Warning: Unknown listitem type detected: '{blackboarditem.type'}")
+                print("Warning: Unknown listitem type detected: '{blackboarditem.type}'")
 
             else:
                 if settings["verbosity"] >= Verbosity.INFO:
