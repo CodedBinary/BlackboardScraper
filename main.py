@@ -36,6 +36,7 @@ def main(argv):
     # want to reorder args and screw smth up
     print("pre", blackboard.Downloader.__subclasses__())
     extractors = {"link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
+    #print("0", blackboard.Downloader.__subclasses__())
     print("0", blackboard.Downloader.__subclasses__())
     #notextractors = {"folder": [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)]}
     extractors["folder"] = [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)]
