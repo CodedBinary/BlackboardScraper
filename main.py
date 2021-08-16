@@ -16,6 +16,10 @@ for module in modules:
     spec = importlib.util.spec_from_file_location(module.split("/")[-1].split(".")[0], module)
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
+    print("\n", foo)
+    print(blackboard.FolderExtractor.__subclasses__())
+    print(blackboard.LinkExtractor.__subclasses__())
+    print("prepre", blackboard.Downloader.__subclasses__())
 
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
@@ -30,12 +34,18 @@ def authenticate(targeturl):
 def main(argv):
     # Definitely make this argv[1] but i cbf doing it right now bc i dont
     # want to reorder args and screw smth up
-    extractors = {"folder": [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)],
-                  "link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
+    print("pre", blackboard.Downloader.__subclasses__())
+    extractors = {"link": [extractor() for extractor in all_subclasses(blackboard.LinkExtractor)]}
+    print("0", blackboard.Downloader.__subclasses__())
+    #notextractors = {"folder": [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)]}
+    extractors["folder"] = [extractor() for extractor in all_subclasses(blackboard.FolderExtractor)]
+    print("1", blackboard.Downloader.__subclasses__())
     downloaders = [downloader() for downloader in all_subclasses(blackboard.Downloader)]
+    print("2", blackboard.Downloader.__subclasses__())
 
     if Settings.settings["verbosity"] >= 2:
         print("Extractors: ", extractors)
+        print(blackboard.Downloader.__subclasses__())
         print("Downloaders: ", downloaders)
 
     if Settings.settings["verbosity"] >= 3:
