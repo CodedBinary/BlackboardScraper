@@ -6,8 +6,8 @@ from selenium import webdriver
 import glob
 import importlib.util
 import Settings
-from Settings import Download
-
+from Settings import Download, settings
+import pickle
 import base
 import blackboard
 
@@ -23,8 +23,27 @@ def all_subclasses(cls):
 
 def authenticate(targeturl):
     driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    loaded = False
+
+    if settings["session_file"] is not None:
+        driver.get(targeturl + "/webapps/login/?action=default_login")
+        with open(settings["session_file"], "rb") as cf:
+            cookies = pickle.load(cf)
+            print(cookies)
+        for cookie in cookies:
+            print(cookie)
+            driver.add_cookie(cookie)
+        loaded = True
+
     driver.get(targeturl)
+
     input("Click enter when on learning resources page")
+
+    if (settings["session_file"] is not None) and (not loaded):
+        with open("session_cookies", "wb") as cf:
+            pickle.dump(cookies, cf)
 
     return driver
 

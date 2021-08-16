@@ -42,14 +42,11 @@ class BlackboardItem():
 
         if self.type not in [y for x in extractors["folder"]+extractors["link"] for y in x.provides]:
             print("ERROR: TYPE NOT RECOGNISED")
+            return
 
         extract, extractable = self.getextractor(extractors["folder"])
-        if extractable:
-            try:
-                extract(self, driver, session, targeturl, self.links[0], extractors)
-            except Exception as f:
-                if settings["verbosity"] >= Verbosity.ERROR:
-                    print(f"Extraction of {self.name} failed with exception {f}")
+        if extractable and len(self.links) > 0:
+            extract(self, driver, session, targeturl, self.links[0], extractors)
         else:
             if settings["verbosity"] >= Verbosity.INFO:
                 print(f"Not extractable: {self.name} {self.links}")

@@ -3,6 +3,7 @@ import os
 import time
 import requests
 from urllib.parse import unquote
+import pickle
 
 import Settings
 from Settings import settings
@@ -16,6 +17,7 @@ def get_filename(link, session):
     '''
     Determines the name of a file that is specified by a blackboard cdn link
     '''
+    print(f"debug: {link}")
     response = session.head(link, allow_redirects=False)
     if "Location" in response.headers:
         href = response.headers["Location"]
@@ -94,9 +96,14 @@ def downloadlink(blackboarditem, session):
     nameslist = get_destinations(blackboarditem, session=session)
 
     for i in range(len(downloads)):
-        if type(downloads[i]) == requests.models.Response:
-            name = uniquename(nameslist[i])
-            open(name, 'wb').write(downloads[i].content)
+        try:
+            if type(downloads[i]) == requests.models.Response:
+                name = uniquename(nameslist[i])
+                with open(name, 'wb') as f:
+                    f.write(downloads[i].content)
+        except Exception as e:
+            print(f"Failed to write file {downloads[i]}: {e}")
+
     time.sleep(1)
     return 0
 
@@ -114,8 +121,12 @@ def cookietransfer(driver):
 
     Allows requests to authenticate using the browser's cookies.
     '''
+
     cookies = driver.get_cookies()
+
     session = requests.Session()
     for cookie in cookies:
         session.cookies.set(cookie['name'], cookie['value'])
     return session
+
+

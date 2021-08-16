@@ -8,7 +8,7 @@ class foldertype(Downloader):
 
     def extract(self, downloaders, blackboarditem, session, driver):
         name = base.uniquename(blackboarditem.name)
-        os.mkdir(name)
+        os.makedirs(name, exist_ok=True)
         os.chdir(name)
         blackboarditem.downloadfolder(session, downloaders, driver)
         os.chdir("..")
