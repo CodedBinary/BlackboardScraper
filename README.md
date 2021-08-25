@@ -37,6 +37,3 @@ For more details, see the documentation in the code.
 - Determine if lectures stored in folders are lectures
 - Think hard about whether its worth passing 5 arguments down so low level functions can use them
 - Only wait if download commences
-
-
-You cannot make this shit up. If (in main.py) you make the extractors assigned in one line, it breaks. You need to have those two lines there in that order, WITH THE PRINT STATEMENT.
