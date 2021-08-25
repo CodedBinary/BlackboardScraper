@@ -81,8 +81,11 @@ def downloadok(blackboarditem, url):
     filename = blackboarditem.filenames[blackboarditem.links.index(url)]
     if filename.split(".")[-1] in settings["exclude_filetype"]:
         return False
-    else:
-        return True
+
+    if blackboarditem.type in settings["exclude_type"]:
+        return False
+
+    return True
 
 
 def downloadlink(blackboarditem, session):
@@ -90,7 +93,10 @@ def downloadlink(blackboarditem, session):
 
     To see the structure of the blackboarditem, check out blackboard.py
     '''
-    downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else None for url in blackboarditem.links]
+    if settings["write_blank"]:
+        downloads = ["" if downloadok(blackboarditem, url) else 0 for url in blackboarditem.links]
+    else:
+        downloads = [session.get(url, allow_redirects=True) if downloadok(blackboarditem, url) else 0 for url in blackboarditem.links]
 
     nameslist = get_destinations(blackboarditem, session=session)
 

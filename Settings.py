@@ -13,6 +13,8 @@ Usage: main.py <university login page> [options]
    -v                 : Enable vebose output.
    --lectures         : Allow downloading lectures from echo
    --exclude-filetype : do not download files with this extension (not work)
+
+   See settings file for more
    """
 
 helptext = """BlackboardScraper https://github.com/CodedBinary/BlackboardScraper
@@ -32,50 +34,74 @@ class Download(IntEnum):
     DO_NOTHING = 3
 
 class Verbosity(IntEnum):
-    ERROR = 0
-    INFO = 1
-    DEBUG = 2
+    ERROR = -2
+    INFO = -1
+    VERBOSE = 0
+    DEBUG = 1
+    DDEBUG = 2
+    DDDEBUG = 3
+    DDDDEBUG = 4
 
 
 global settings
 settings = {
     "dry_run": Download.YES,                # 0 to copy and download; 1 to copy and not download; 2 to not copy or download; 3 to not copy, download, or authenticate
+    "download_lectures": False,
+    "write_blank": False,
     "item_as_folder": False,                # Determines if Item items will be downloaded into their own folder or not
     "exclude_filetype": [],
-    "optstring": "dv",
-    "longopts": ["lectures", "exclude-filetype", "cookie-file"],
+    "exclude_type": [],
+    "write_text_files": True,
+    "shortopts": "dvl",
+    "longopts": ["lectures", "exclude-filetype=", "item-as-folder", "exclude_type=", "ignore-text-files", "write_blank", "cookie-file"],
     "settings_file": "settings.json",
-    "download_lectures": False,
     "parse_date_format": "%B %d, %Y",  # July 24, 2018
     "parse_time_format": "%I:%M%p",  # 10:00am
     "write_date_format": "%Y-%m-%d (%A)",
     "write_time_format": "%X",  # locale-specifc default time format
     "save_file_format": "{format_date} {format_time} {stream-name} {name}.{ext}",
-    "verbosity": Verbosity.INFO,
+    "verbosity": Verbosity.ERROR,
     "help_text": "Usage: echo.py -l <login link> -e <echo link>",
     "session_file": "session_cookies"
 }
 
-opts, args = getopt.getopt(sys.argv[1:], settings["optstring"], longopts=settings["longopts"])
+opts, args = getopt.getopt(sys.argv[1:], settings["shortopts"], longopts=settings["longopts"])
 
 if not len(args) == 1:
     exitusage()
 
-settings["url"] = args[0]
 
 for opt, arg in opts:
+    if opt == "-l":
+        settings["url"] = args[0]
 
     if opt == "-v":
-        settings["verbosity"] = Verbosity.DEBUG
+        settings["verbosity"] += 1
 
     if opt == "-d":
-        settings["dry_run"] = Download.COPY_ONLY
+        settings["dry_run"] += 1
 
     if opt == "--lectures":
-        settings["download"] = True
+        settings["download_lectures"] = True
 
     if opt == "--exclude-filetype":
-        settings["exclude_filetype"] += [arg]
+        settings["exclude_filetype"] += arg.split(",")
 
     if opt == "--cookie-file":
         settings["session_file"] = arg
+
+    if opt == "--item-as-folder":
+        settings["item_as_folder"] = True
+
+    if opt == "--exclude-type":
+        settings["exclude_type"] = arg.split(",")
+
+    if opt == "--ignore-text-files":
+        settings["write_text_files"] = False
+
+    if opt == "--write-blank":
+        settings["write_blank"] = True
+
+if settings["verbosity"] >= Verbosity.DDEBUG:
+    print("Options: ", opts)
+    print("Arguments: ", args)
