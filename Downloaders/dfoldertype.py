@@ -2,7 +2,7 @@ import base
 from blackboard import Downloader
 import os
 
-class foldertype(Downloader):
+class dfoldertype(Downloader):
     def __init__(self):
         self.provides = ["Content Folder", "Learning Module"]
 
